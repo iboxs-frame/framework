@@ -1,8 +1,8 @@
 {
-    "name": "iboxs/framework",
+    "name": "iboxs/frame",
     "description": "The iboxsPHP Framework.",
     "keywords": [
-        "framework",
+        "frame",
         "iboxsphp",
         "ORM"
     ],
