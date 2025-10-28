@@ -8,13 +8,12 @@
 // +----------------------------------------------------------------------
 // | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace iboxs\contract;
 
 use Closure;
-use iboxs\Collection;
-use iboxs\db\Query;
+use iboxs\db\BaseQuery as Query;
 use iboxs\Model;
 
 /**
@@ -27,9 +26,9 @@ interface ModelRelationInterface
      * @access public
      * @param  array   $subRelation 子关联
      * @param  Closure $closure     闭包查询条件
-     * @return Collection
+     * @return mixed
      */
-    public function getRelation(array $subRelation = [], Closure $closure = null): Collection;
+    public function getRelation(array $subRelation = [], ?Closure $closure = null);
 
     /**
      * 预载入关联查询
@@ -40,7 +39,7 @@ interface ModelRelationInterface
      * @param  Closure $closure     闭包条件
      * @return void
      */
-    public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation, Closure $closure = null): void;
+    public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation, ?Closure $closure = null): void;
 
     /**
      * 预载入关联查询
@@ -51,7 +50,7 @@ interface ModelRelationInterface
      * @param  Closure $closure     闭包条件
      * @return void
      */
-    public function eagerlyResult(Model $result, string $relation, array $subRelation = [], Closure $closure = null): void;
+    public function eagerlyResult(Model $result, string $relation, array $subRelation = [], ?Closure $closure = null): void;
 
     /**
      * 关联统计
@@ -63,7 +62,7 @@ interface ModelRelationInterface
      * @param  string  $name 统计字段别名
      * @return integer
      */
-    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*', string &$name = null);
+    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*', ?string &$name = null);
 
     /**
      * 创建关联统计子查询
@@ -74,7 +73,7 @@ interface ModelRelationInterface
      * @param  string  $name 统计字段别名
      * @return string
      */
-    public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*', string &$name = null): string;
+    public function getRelationCountQuery(?Closure $closure = null, string $aggregate = 'count', string $field = '*', ?string &$name = null): string;
 
     /**
      * 根据关联条件查询当前模型
@@ -85,7 +84,7 @@ interface ModelRelationInterface
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = 'INNER'): Query;
+    public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = 'INNER', ?Query $query = null): Query;
 
     /**
      * 根据关联条件查询当前模型

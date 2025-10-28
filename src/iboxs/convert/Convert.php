@@ -4,8 +4,9 @@ namespace iboxs\convert;
 use iboxs\facade\View;
 
 trait Convert{
-    protected function fetch($template='',$vars=[],$code=200,$filter=null){
-        return view($template,$vars,$code,$filter);
+    protected function fetch($template='',$vars=[],$code=200,$trace=true,$filter=null){
+        $this->assign('host',env('HOST'));
+        return view($template,$vars,$code,$trace,$filter);
     }
 
     protected function assign($key,$value=null){

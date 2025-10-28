@@ -52,5 +52,4 @@ class Controller extends Make
     {
         return parent::getNamespace($app) . '\\controller';
     }
-
 }

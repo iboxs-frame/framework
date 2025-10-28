@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace iboxs\response;
 
@@ -58,5 +58,4 @@ class Json extends Response
             throw $e;
         }
     }
-
 }

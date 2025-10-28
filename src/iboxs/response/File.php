@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace iboxs\response;
 
@@ -53,6 +53,7 @@ class File extends Response
         } else {
             $name = !$this->isContent ? pathinfo($data, PATHINFO_BASENAME) : '';
         }
+        $name = urlencode($name); // 支持中文名称
 
         if ($this->isContent) {
             $mimeType = $this->mimeType;
@@ -65,7 +66,7 @@ class File extends Response
         $this->header['Pragma']                    = 'public';
         $this->header['Content-Type']              = $mimeType ?: 'application/octet-stream';
         $this->header['Cache-control']             = 'max-age=' . $this->expire;
-        $this->header['Content-Disposition']       = ($this->force ? 'attachment; ' : '') . 'filename="' . $name . '"';
+        $this->header['Content-Disposition']       = ($this->force ? 'attachment; ' : '') . 'filename="' . $name . '";' . "filename* = UTF-8''{$name}";
         $this->header['Content-Length']            = $size;
         $this->header['Content-Transfer-Encoding'] = 'binary';
         $this->header['Expires']                   = gmdate("D, d M Y H:i:s", time() + $this->expire) . ' GMT';
@@ -151,7 +152,7 @@ class File extends Response
     {
         $this->name = $filename;
 
-        if ($extension && false === strpos($filename, '.')) {
+        if ($extension && !str_contains($filename, '.')) {
             $this->name .= '.' . pathinfo($this->data, PATHINFO_EXTENSION);
         }
 

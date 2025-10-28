@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace iboxs;
 
@@ -18,6 +18,10 @@ namespace iboxs;
  */
 abstract class Response
 {
+    /**
+     * 输出调试数据
+     */
+    public $trace;
     /**
      * 原始数据
      * @var mixed
@@ -102,7 +106,7 @@ abstract class Response
      */
     public static function create($data = '', string $type = 'html', int $code = 200): Response
     {
-        $class = false !== strpos($type, '\\') ? $type : '\\iboxs\\response\\' . ucfirst(strtolower($type));
+        $class = str_contains($type, '\\') ? $type : '\\iboxs\\response\\' . ucfirst(strtolower($type));
 
         return Container::getInstance()->invokeClass($class, [$data, $code]);
     }
@@ -260,10 +264,11 @@ abstract class Response
      */
     public function content($content)
     {
-        if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
-            $content,
-            '__toString',
-        ])
+        if (
+            null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
+                $content,
+                '__toString',
+            ])
         ) {
             throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
         }
@@ -387,10 +392,11 @@ abstract class Response
         if (null == $this->content) {
             $content = $this->output($this->data);
 
-            if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
-                $content,
-                '__toString',
-            ])
+            if (
+                null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
+                    $content,
+                    '__toString',
+                ])
             ) {
                 throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
             }
@@ -409,5 +415,15 @@ abstract class Response
     public function getCode(): int
     {
         return $this->code;
+    }
+
+    /**
+     * 获取Cookie对象
+     * @access public
+     * @return Cookie
+     */
+    public function getCookie()
+    {
+        return $this->cookie;
     }
 }

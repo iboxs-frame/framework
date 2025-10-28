@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | iboxsPHP [ WE CAN DO IT JUST iboxs IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006-2016 http://iboxsphp.cn All rights reserved.
+// | Copyright (c) 2006-2025 http://iboxsphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace iboxs\console\command;
 
+use Composer\InstalledVersions;
 use iboxs\console\Command;
 use iboxs\console\Input;
 use iboxs\console\Output;
@@ -27,7 +28,8 @@ class Version extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $output->writeln('v' . $this->app->version());
+        $version = InstalledVersions::getPrettyVersion('iboxs/framework');
+        $output->writeln($version);
     }
 
 }

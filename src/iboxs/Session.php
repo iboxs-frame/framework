@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace iboxs;
 
@@ -38,7 +38,7 @@ class Session extends Manager
      * @param mixed       $default 默认值
      * @return mixed
      */
-    public function getConfig(string $name = null, $default = null)
+    public function getConfig(?string $name = null, $default = null)
     {
         if (!is_null($name)) {
             return $this->app->config->get('session.' . $name, $default);

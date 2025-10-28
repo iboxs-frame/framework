@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace iboxs\middleware;
 
@@ -31,7 +31,7 @@ class FormTokenCheck
      * @param string  $token 表单令牌Token名称
      * @return Response
      */
-    public function handle(Request $request, Closure $next, string $token = null)
+    public function handle(Request $request, Closure $next, ?string $token = null): Response
     {
         $check = $request->checkToken($token ?: '__token__');
 
@@ -41,5 +41,4 @@ class FormTokenCheck
 
         return $next($request);
     }
-
 }

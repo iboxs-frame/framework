@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace iboxs\event;
 
@@ -17,15 +17,7 @@ namespace iboxs\event;
  */
 class LogWrite
 {
-    /** @var string */
-    public $channel;
-
-    /** @var array */
-    public $log;
-
-    public function __construct($channel, $log)
+    public function __construct(public string $channel, public array $log)
     {
-        $this->channel = $channel;
-        $this->log     = $log;
     }
 }

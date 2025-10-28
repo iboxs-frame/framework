@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace iboxs\response;
 
@@ -53,7 +53,7 @@ class Xml extends Response
     protected function output($data): string
     {
         if (is_string($data)) {
-            if (0 !== strpos($data, '<?xml')) {
+            if (!str_starts_with($data, '<?xml')) {
                 $encoding = $this->options['encoding'];
                 $xml      = "<?xml version=\"1.0\" encoding=\"{$encoding}\"?>";
                 $data     = $xml . $data;

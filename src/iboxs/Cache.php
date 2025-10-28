@@ -8,10 +8,12 @@
 // +----------------------------------------------------------------------
 // | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace iboxs;
 
+use DateInterval;
+use DateTimeInterface;
 use Psr\SimpleCache\CacheInterface;
 use iboxs\cache\Driver;
 use iboxs\cache\TagSet;
@@ -32,7 +34,7 @@ class Cache extends Manager implements CacheInterface
      * 默认驱动
      * @return string|null
      */
-    public function getDefaultDriver()
+    public function getDefaultDriver(): ?string
     {
         return $this->getConfig('default');
     }
@@ -44,7 +46,7 @@ class Cache extends Manager implements CacheInterface
      * @param mixed       $default 默认值
      * @return mixed
      */
-    public function getConfig(string $name = null, $default = null)
+    public function getConfig(?string $name = null, $default = null)
     {
         if (!is_null($name)) {
             return $this->app->config->get('cache.' . $name, $default);
@@ -57,10 +59,10 @@ class Cache extends Manager implements CacheInterface
      * 获取驱动配置
      * @param string $store
      * @param string $name
-     * @param null   $default
+     * @param mixed  $default
      * @return array
      */
-    public function getStoreConfig(string $store, string $name = null, $default = null)
+    public function getStoreConfig(string $store, ?string $name = null, $default = null)
     {
         if ($config = $this->getConfig("stores.{$store}")) {
             return Arr::get($config, $name, $default);
@@ -82,10 +84,10 @@ class Cache extends Manager implements CacheInterface
     /**
      * 连接或者切换缓存
      * @access public
-     * @param string $name 连接配置名
+     * @param string|null $name 连接配置名
      * @return Driver
      */
-    public function store(string $name = null)
+    public function store(?string $name = null)
     {
         return $this->driver($name);
     }
@@ -107,7 +109,7 @@ class Cache extends Manager implements CacheInterface
      * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($key, $default = null)
+    public function get($key, mixed $default = null): mixed
     {
         return $this->store()->get($key, $default);
     }
@@ -115,9 +117,9 @@ class Cache extends Manager implements CacheInterface
     /**
      * 写入缓存
      * @access public
-     * @param string        $key   缓存变量名
-     * @param mixed         $value 存储数据
-     * @param int|\DateTime $ttl   有效时间 0为永久
+     * @param string                             $key   缓存变量名
+     * @param mixed                              $value 存储数据
+     * @param int|DateTimeInterface|DateInterval $ttl   有效时间 0为永久
      * @return bool
      */
     public function set($key, $value, $ttl = null): bool
@@ -190,8 +192,9 @@ class Cache extends Manager implements CacheInterface
      * @param string|array $name 标签名
      * @return TagSet
      */
-    public function tag($name): TagSet
+    public function tag($name)
     {
         return $this->store()->tag($name);
     }
+
 }

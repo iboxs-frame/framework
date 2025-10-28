@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace iboxs\event;
 
@@ -16,4 +16,5 @@ namespace iboxs\event;
  * HttpEnd事件类
  */
 class HttpEnd
-{}
+{
+}

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace iboxs\response;
 
@@ -36,6 +36,12 @@ class Redirect extends Response
         $this->cacheControl('no-cache,must-revalidate');
     }
 
+    public function data($data)
+    {
+        $this->header['Location'] = $data;
+        return parent::data($data);
+    }
+
     /**
      * 处理数据
      * @access protected
@@ -44,8 +50,6 @@ class Redirect extends Response
      */
     protected function output($data): string
     {
-        $this->header['Location'] = $data;
-
         return '';
     }
 
@@ -89,7 +93,7 @@ class Redirect extends Response
     public function restore()
     {
         if ($this->session->has('redirect_url')) {
-            $this->data = $this->session->get('redirect_url');
+            $this->data($this->session->get('redirect_url'));
             $this->session->delete('redirect_url');
         }
 

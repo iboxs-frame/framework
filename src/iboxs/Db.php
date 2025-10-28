@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace iboxs;
 
@@ -46,7 +46,7 @@ class Db extends DbManager
      * @access public
      * @return void
      */
-    protected function modelMaker()
+    protected function modelMaker(): void
     {
     }
 

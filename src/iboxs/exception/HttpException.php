@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | iboxsPHP [ WE CAN DO IT JUST iboxs IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006-2021 http://iboxsphp.cn All rights reserved.
+// | Copyright (c) 2006-2025 http://iboxsphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -19,14 +19,8 @@ use Exception;
  */
 class HttpException extends \RuntimeException
 {
-    private $statusCode;
-    private $headers;
-
-    public function __construct(int $statusCode, string $message = '', Exception $previous = null, array $headers = [], $code = 0)
+    public function __construct(private int $statusCode, string $message = '', ?Exception $previous = null, private array $headers = [], $code = 0)
     {
-        $this->statusCode = $statusCode;
-        $this->headers    = $headers;
-
         parent::__construct($message, $code, $previous);
     }
 

@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2021 http://iboxsphp.cn All rights reserved.
+// | Copyright (c) 2006~2025 http://iboxsphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -35,7 +35,12 @@ class Cache implements SessionHandlerInterface
 
     public function read(string $sessionId): string
     {
-        return (string) $this->handler->get($this->prefix . $sessionId);
+        $data= $this->handler->get($this->prefix . $sessionId);
+
+        if(is_array($data)){
+            return serialize($data);
+        }
+        return (string) $data;
     }
 
     public function delete(string $sessionId): bool

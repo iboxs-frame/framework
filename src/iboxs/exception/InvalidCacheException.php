@@ -1,20 +1,19 @@
 <?php
 // +----------------------------------------------------------------------
-// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
+// | Copyright (c) 2006-2025 http://iboxsphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: itlattice <notice@itgz8.com>
+// | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
-
-namespace iboxs\event;
+declare (strict_types = 1);
+namespace iboxs\exception;
 
 /**
- * HttpRun事件类
+ * 非法缓存数据异常
  */
-class HttpRun
+class InvalidCacheException extends InvalidArgumentException
 {
 }
