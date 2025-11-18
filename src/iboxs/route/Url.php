@@ -1,12 +1,12 @@
 <?php
 // +----------------------------------------------------------------------
-// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
+// | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
+// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: itlattice <notice@itgz8.com>
+// | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 declare(strict_types=1);
 
@@ -217,7 +217,7 @@ class Url
             $action     = array_pop($path);
             $controller = empty($path) ? $controller : array_pop($path);
             $url        = $controller . '/' . $action;
-            $auto       = $this->route->getName('__iboxs_auto_route__');
+            $auto       = $this->route->getName('__think_auto_route__');
             if (!empty($auto) && !strpos($controller,'.')) {
                 $module = empty($path) ? $request->layer() : array_pop($path);
                 $url    = $module . '/' . $url;

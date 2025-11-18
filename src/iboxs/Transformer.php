@@ -16,7 +16,7 @@ use iboxs\model\Collection;
 
 class Transformer
 {
-    public function listHandle($list){
+    public function listHandle($list,...$params){
         $data=[];
         $active=false;
         if(is_array($list)){
@@ -25,24 +25,24 @@ class Transformer
             $class=$list::class;
             if($class==Collection::class){
                 foreach($list as $k=>$v){
-                    $data[]=$this->transformer($v);
+                    $data[]=$this->transformer($v,...$params);
                 }
                 return $data;
             } else if(Model::class){
-                $data=$this->transformer($list);
+                $data=$this->transformer($list,...$params);
                 return $data;
             }
         }
         foreach($list as $k=>$v){
             if(is_int($k)){
-                $data[]=$this->transformer($v);
+                $data[]=$this->transformer($v,...$params);
                 $active=true;
                 continue;
             }
             break;
         }
         if($active==false){
-            $data=$this->transformer($list);
+            $data=$this->transformer($list,...$params);
         }
         return $data;
     }

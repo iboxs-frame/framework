@@ -1,12 +1,12 @@
 <?php
 // +----------------------------------------------------------------------
-// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
+// | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
+// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: itlattice <notice@itgz8.com>
+// | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 declare(strict_types=1);
 
@@ -104,7 +104,7 @@ abstract class Response
      * @param  int    $code 状态码
      * @return Response
      */
-    public static function create($data = '', string $type = 'html', int $code = 200): Response
+    public static function create($data = '', string $type = 'html', int $code = 200,bool $trace=true): Response
     {
         $class = str_contains($type, '\\') ? $type : '\\iboxs\\response\\' . ucfirst(strtolower($type));
 

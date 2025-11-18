@@ -1,12 +1,12 @@
 <?php
 // +----------------------------------------------------------------------
-// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
+// | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
+// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: itlattice <notice@itgz8.com>
+// | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
@@ -36,9 +36,9 @@ class Lang
         // 扩展语言包
         'extend_list'         => [],
         // 多语言cookie变量
-        'cookie_var'          => 'iboxs_lang',
+        'cookie_var'          => 'think_lang',
         // 多语言header变量
-        'header_var'          => 'iboxs-lang',
+        'header_var'          => 'think-lang',
         // 多语言自动侦测变量名
         'detect_var'          => 'lang',
         // Accept-Language转义为对应语言包名称

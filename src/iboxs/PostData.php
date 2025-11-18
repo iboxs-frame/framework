@@ -23,6 +23,10 @@ class PostData implements ArrayAccess
         $this->postdata=request()->param();
     }
 
+    public function toArray(){
+        return $this->postdata;
+    }
+
     public function offsetExists($key):bool
     {
         return isset($this->postdata[$key]);
@@ -33,7 +37,7 @@ class PostData implements ArrayAccess
         $this->postdata[$key] = $value;
     }
     
-    public function offsetGet($key)
+    public function offsetGet($key):mixed
     {
         return $this->postdata[$key]??null;
     }

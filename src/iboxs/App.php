@@ -1,12 +1,12 @@
 <?php
 // +----------------------------------------------------------------------
-// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
+// | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
+// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: itlattice <notice@itgz8.com>
+// | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
@@ -341,7 +341,7 @@ class App extends Container
      */
     public function version(): string
     {
-        return ltrim(InstalledVersions::getPrettyVersion('iboxs/framework'), 'v');
+        return ltrim(InstalledVersions::getPrettyVersion('topthink/framework'), 'v');
     }
 
     /**
@@ -392,6 +392,7 @@ class App extends Container
     {
         return $this->runtimePath;
     }
+
     /**
      * 获取应用资源目录
      * @return string
@@ -421,7 +422,7 @@ class App extends Container
      * @access public
      * @return string
      */
-    public function getIboxsPath(): string
+    public function getiboxsPath(): string
     {
         return $this->iboxsPath;
     }
@@ -618,9 +619,6 @@ class App extends Container
         // 应用调试模式
         if (!$this->appDebug) {
             $this->appDebug = $this->env->get('app_debug') ? true : false;
-        }
-
-        if (!$this->appDebug) {
             ini_set('display_errors', 'Off');
         }
 

@@ -1,8 +1,8 @@
 <?php
 // +----------------------------------------------------------------------
-// | iboxsPHP [ WE CAN DO IT JUST iboxs IT ]
+// | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006-2025 http://iboxsphp.cn All rights reserved.
+// | Copyright (c) 2006-2025 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -28,7 +28,7 @@ class Version extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $version = InstalledVersions::getPrettyVersion('iboxs/framework');
+        $version = InstalledVersions::getPrettyVersion('topthink/framework');
         $output->writeln($version);
     }
 

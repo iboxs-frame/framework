@@ -1,12 +1,12 @@
 <?php
 // +----------------------------------------------------------------------
-// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
+// | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
+// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: itlattice <notice@itgz8.com>
+// | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 declare(strict_types=1);
 
@@ -32,7 +32,7 @@ use iboxs\Facade;
  * @method static mixed setAppPath(string $path) 设置应用目录
  * @method static string getRuntimePath() 获取应用运行时目录
  * @method static void setRuntimePath(string $path) 设置runtime目录
- * @method static string getIBoxsPath() 获取核心框架目录
+ * @method static string getiboxsPath() 获取核心框架目录
  * @method static string getConfigPath() 获取应用配置目录
  * @method static string getConfigExt() 获取配置后缀
  * @method static float getBeginTime() 获取应用开启时间

@@ -1,8 +1,8 @@
 <?php
 // +----------------------------------------------------------------------
-// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
+// | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://iboxsphp.cn All rights reserved.
+// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -21,7 +21,7 @@ class ServiceDiscover extends Command
     public function configure()
     {
         $this->setName('service:discover')
-            ->setDescription('Discover Services for iboxsPHP');
+            ->setDescription('Discover Services for ThinkPHP');
     }
 
     public function execute(Input $input, Output $output)
@@ -35,8 +35,8 @@ class ServiceDiscover extends Command
 
             $services = [];
             foreach ($packages as $package) {
-                if (!empty($package['extra']['iboxs']['services'])) {
-                    $services = array_merge($services, (array) $package['extra']['iboxs']['services']);
+                if (!empty($package['extra']['think']['services'])) {
+                    $services = array_merge($services, (array) $package['extra']['think']['services']);
                 }
             }
 

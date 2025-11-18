@@ -1,8 +1,8 @@
 <?php
 // +----------------------------------------------------------------------
-// | Topiboxs [ WE CAN DO IT JUST iboxs IT ]
+// | TopThink [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://www.topiboxs.com All rights reserved.
+// | Copyright (c) 2006~2025 http://www.topthink.com All rights reserved.
 // +----------------------------------------------------------------------
 // | Author: zhangyajun <448901948@qq.com>
 // +----------------------------------------------------------------------

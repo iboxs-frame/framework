@@ -5,7 +5,6 @@ use iboxs\facade\View;
 
 trait Convert{
     protected function fetch($template='',$vars=[],$code=200,$trace=true,$filter=null){
-        $this->assign('host',env('HOST'));
         return view($template,$vars,$code,$trace,$filter);
     }
 
@@ -22,18 +21,29 @@ trait Convert{
         foreach($other as $k=>$v){
             $result[$k]=$v;
         }
+        if(request()->param('request_id','')!=''){
+            $result['response_id']=request()->param('request_id');
+        }
         return json($result,$state);
     }
 
-    public function success($result,$msg='操作成功'){
-        return $this->json(0,$msg,$result);
+    public function success($result=[],$msg='操作成功',$other=[],$code=0){
+        return $this->json($code,$msg,$result,$other);
     }
 
     public function error($msg,$code=-403.1,$other=[],$data=[]){
         return $this->json($code,$msg,$data,$other);
     }
-    
-    public function layJson($data,$map=null){
+
+    public function listData($data,$map=null){
+        $list=$data->select();
+        if($map!=null){
+            $list=$list->map($map);
+        }
+        return $list;
+    }
+
+    public function listPage($data,$map=null){
         $count=$data->count();
         $limit=request()->post('limit',25);
         $page=request()->post('page',1);
@@ -44,14 +54,39 @@ trait Convert{
             $list=$list->map($map);
         }
         $maxPage=ceil($count/$limit);
-        return $this->json(0,'获取成功',$list,['count'=>$count,'limit'=>$limit,'page'=>$page,'maxPage'=>$maxPage]);
+        return [
+            'data'=>$list,
+            'count'=>$count,
+            'limit'=>$limit,
+            'page'=>$page,
+            'maxPage'=>$maxPage
+        ];
+    }
+    
+    public function layJson($data,$map=null,$limit=null,$page=null,$other=null){
+        $count=$data->count();
+        if($limit==null){
+            $limit=request()->post('limit',15);
+        }
+        if($page==null){
+            $page=request()->post('page',1);
+        }
+        $page=intval($page);
+        $limit=intval($limit);
+        $list=$data->page($page,$limit)->select();
+        if($map!=null){
+            $list=$list->map($map);
+        }
+        $maxPage=ceil($count/$limit);
+        $other=$other==null?['count'=>$count,'limit'=>$limit,'page'=>$page,'maxPage'=>$maxPage]:array_merge($other,['count'=>$count,'limit'=>$limit,'page'=>$page,'maxPage'=>$maxPage]);
+        return $this->success($list,'获取成功',$other);
     }
 
     protected function jsFetch($vars=[],$code=200,$filter=null){
         $controller=$this->request->controller(true);
         $action=$this->request->action(true);
         $tmp=app_path()."/view/{$controller}/{$action}.js";
-        return $this->fetch($tmp,$vars,$code,$filter)->header([
+        return $this->fetch($tmp,$vars,$code,false,$filter)->header([
             'Content-Type'=>'application/javascript; charset=utf-8'
         ]);
     }

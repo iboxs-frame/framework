@@ -1,8 +1,8 @@
 <?php
 // +----------------------------------------------------------------------
-// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
+// | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://iboxsphp.cn All rights reserved.
+// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -15,7 +15,7 @@ namespace iboxs\exception;
 use iboxs\Exception;
 
 /**
- * iboxsPHP错误异常
+ * ThinkPHP错误异常
  * 主要用于封装 set_error_handler 和 register_shutdown_function 得到的错误
  * 除开从 iboxs\Exception 继承的功能
  * 其他和PHP系统\ErrorException功能基本一样

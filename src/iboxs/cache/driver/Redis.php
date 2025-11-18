@@ -1,12 +1,12 @@
 <?php
 // +----------------------------------------------------------------------
-// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
+// | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
+// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: itlattice <notice@itgz8.com>
+// | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
@@ -16,86 +16,10 @@ use DateInterval;
 use DateTimeInterface;
 use iboxs\cache\Driver;
 use iboxs\exception\InvalidCacheException;
-use iboxs\redis\Redis as RedisRedis;
+use iboxs\redis\Redis as IboxsRedis;
 
 class Redis extends Driver
 {
-    /** @var \Predis\Client|\Redis */
-    protected $handler;
-
-    /**
-     * 配置参数
-     * @var array
-     */
-    protected $options = [
-        'host'        => '127.0.0.1',
-        'port'        => 6379,
-        'password'    => '',
-        'select'      => 0,
-        'timeout'     => 0,
-        'expire'      => 0,
-        'persistent'  => false,
-        'prefix'      => '',
-        'tag_prefix'  => 'tag:',
-        'serialize'   => [],
-        'fail_delete' => false,
-    ];
-
-    /**
-     * 架构函数
-     * @access public
-     * @param array $options 缓存参数
-     */
-    public function __construct(array $options = [])
-    {
-        if (!empty($options)) {
-            $this->options = array_merge($this->options, $options);
-        }
-    }
-
-    public function handler()
-    {
-        if (!$this->handler) {
-            if (extension_loaded('redis')) {
-                $this->handler = new \Redis;
-
-                if ($this->options['persistent']) {
-                    $this->handler->pconnect($this->options['host'], (int) $this->options['port'], (int) $this->options['timeout'], 'persistent_id_' . $this->options['select']);
-                } else {
-                    $this->handler->connect($this->options['host'], (int) $this->options['port'], (int) $this->options['timeout']);
-                }
-
-                if ('' != $this->options['password']) {
-                    $this->handler->auth($this->options['password']);
-                }
-            } elseif (class_exists('\Predis\Client')) {
-                $params = [];
-                foreach ($this->options as $key => $val) {
-                    if (in_array($key, ['aggregate', 'cluster', 'connections', 'exceptions', 'prefix', 'profile', 'replication', 'parameters'])) {
-                        $params[$key] = $val;
-                        unset($this->options[$key]);
-                    }
-                }
-
-                if ('' == $this->options['password']) {
-                    unset($this->options['password']);
-                }
-
-                $this->handler = new \Predis\Client($this->options, $params);
-
-                $this->options['prefix'] = '';
-            } else {
-                throw new \BadFunctionCallException('not support: redis');
-            }
-
-            if (0 != $this->options['select']) {
-                $this->handler->select((int) $this->options['select']);
-            }
-        }
-
-        return $this->handler;
-    }
-
     /**
      * 判断缓存
      * @access public
@@ -104,7 +28,7 @@ class Redis extends Driver
      */
     public function has($name): bool
     {
-        return RedisRedis::basic()->exists($this->getCacheKey($name))?true:false;
+        return IboxsRedis::basic()->exists($name);
     }
 
     /**
@@ -116,9 +40,7 @@ class Redis extends Driver
      */
     public function get($name, $default = null): mixed
     {
-        $key   = $this->getCacheKey($name);
-
-        return RedisRedis::basic()->get($key,$default);
+        return IboxsRedis::basic()->get($name,$default);
     }
 
     /**
@@ -135,9 +57,7 @@ class Redis extends Driver
             $expire = $this->options['expire'];
         }
 
-        $key    = $this->getCacheKey($name);
-        $expire = $this->getExpireTime($expire);
-        return RedisRedis::basic()->set($key, $value, $expire);
+        return IboxsRedis::basic()->set($name,$value,$expire);
     }
 
     /**
@@ -149,9 +69,7 @@ class Redis extends Driver
      */
     public function inc($name, $step = 1)
     {
-        $key = $this->getCacheKey($name);
-
-        return RedisRedis::basic()->inc($key, $step);
+        return IboxsRedis::basic()->inc($name,$step);
     }
 
     /**
@@ -163,9 +81,7 @@ class Redis extends Driver
      */
     public function dec($name, $step = 1)
     {
-        $key = $this->getCacheKey($name);
-
-        return RedisRedis::basic()->inc($key, $step);
+        return IboxsRedis::basic()->dec($name,$step);
     }
 
     /**
@@ -176,9 +92,7 @@ class Redis extends Driver
      */
     public function delete($name): bool
     {
-        $key    = $this->getCacheKey($name);
-        $result = RedisRedis::basic()->del($key);
-        return $result > 0;
+        return IboxsRedis::basic()->del($name)>0;
     }
 
     /**
@@ -188,8 +102,7 @@ class Redis extends Driver
      */
     public function clear(): bool
     {
-        RedisRedis::sysmatic()->flushAll();
-        return true;
+        return IboxsRedis::sysmatic()->flushDb();
     }
 
     /**
@@ -200,9 +113,7 @@ class Redis extends Driver
      */
     public function clearTag($keys): void
     {
-        // 指定标签清除
-        // $this->handler()->del($keys);
-        RedisRedis::basic()->del($keys);
+        IboxsRedis::basic()->del($keys);
     }
 
     /**
@@ -214,8 +125,7 @@ class Redis extends Driver
      */
     public function append($name, $value): void
     {
-        $key = $this->getCacheKey($name);
-        $this->handler()->sAdd($key, $value);
+        IboxsRedis::Set()->add($name,$value);
     }
 
     /**
@@ -226,13 +136,6 @@ class Redis extends Driver
      */
     public function getTagItems(string $tag): array
     {
-        $name = $this->getTagKey($tag);
-        $key  = $this->getCacheKey($name);
-        return $this->handler()->sMembers($key);
-    }
-
-    public function __call($method, $args)
-    {
-        return call_user_func_array([$this->handler(), $method], $args);
+       return IboxsRedis::Set()->members($tag);
     }
 }

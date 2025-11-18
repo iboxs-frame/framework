@@ -36,7 +36,7 @@ class PostHeader implements ArrayAccess
         $this->postdata[$key] = $value;
     }
     
-    public function offsetGet($key)
+    public function offsetGet($key):mixed
     {
         return $this->postdata[$key]??null;
     }
