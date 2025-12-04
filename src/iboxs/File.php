@@ -1,19 +1,18 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs;
 
 use SplFileInfo;
-use Closure;
 use iboxs\exception\FileException;
 
 /**
@@ -30,12 +29,6 @@ class File extends SplFileInfo
     protected $hash = [];
 
     protected $hashName;
-
-    /**
-     * 保存的文件后缀
-     * @var string
-     */
-    protected $extension;
 
     public function __construct(string $path, bool $checkPath = true)
     {
@@ -100,7 +93,7 @@ class File extends SplFileInfo
      * @param string|null $name      保存的文件名
      * @return File
      */
-    public function move(string $directory, ?string $name = null): File
+    public function move(string $directory, string $name = null): File
     {
         $target = $this->getTargetFile($directory, $name);
 
@@ -124,7 +117,7 @@ class File extends SplFileInfo
      * @param null|string $name
      * @return File
      */
-    protected function getTargetFile(string $directory, ?string $name = null): File
+    protected function getTargetFile(string $directory, string $name = null): File
     {
         if (!is_dir($directory)) {
             if (false === @mkdir($directory, 0777, true) && !is_dir($directory)) {
@@ -163,36 +156,32 @@ class File extends SplFileInfo
     }
 
     /**
-     * 指定保存文件的扩展名
-     * @param string $extension
-     * @return void
-     */
-    public function setExtension(string $extension): void
-    {
-        $this->extension = $extension;
-    }
-
-    /**
      * 自动生成文件名
      * @access public
-     * @param string|Closure|null $rule
+     * @param string|\Closure $rule
      * @return string
      */
-    public function hashName(string|Closure|null $rule = null): string
+    public function hashName($rule = ''): string
     {
         if (!$this->hashName) {
-            if ($rule instanceof Closure) {
+            if ($rule instanceof \Closure) {
                 $this->hashName = call_user_func_array($rule, [$this]);
             } else {
-                $this->hashName = match (true) {
-                    in_array($rule, hash_algos()) && $hash = $this->hash($rule)   =>  substr($hash, 0, 2) . DIRECTORY_SEPARATOR . substr($hash, 2),
-                    is_callable($rule)  =>  call_user_func($rule),
-                    default     =>  date('Ymd') . DIRECTORY_SEPARATOR . md5(microtime(true) . $this->getPathname()),
-                };
+                switch (true) {
+                    case in_array($rule, hash_algos()):
+                        $hash           = $this->hash($rule);
+                        $this->hashName = substr($hash, 0, 2) . DIRECTORY_SEPARATOR . substr($hash, 2);
+                        break;
+                    case is_callable($rule):
+                        $this->hashName = call_user_func($rule);
+                        break;
+                    default:
+                        $this->hashName = date('Ymd') . DIRECTORY_SEPARATOR . md5(microtime(true) . $this->getPathname());
+                        break;
+                }
             }
         }
 
-        $extension = $this->extension ?? $this->extension();
-        return $this->hashName . ($extension ? '.' . $extension : '');
+        return $this->hashName . '.' . $this->extension();
     }
 }

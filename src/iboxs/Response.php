@@ -1,14 +1,14 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs;
 
@@ -82,6 +82,7 @@ abstract class Response
      */
     protected $session;
 
+
     /**
      * 初始化
      * @access protected
@@ -108,7 +109,7 @@ abstract class Response
     {
         $class = str_contains($type, '\\') ? $type : '\\iboxs\\response\\' . ucfirst(strtolower($type));
 
-        return Container::getInstance()->invokeClass($class, [$data, $code]);
+        return Container::getInstance()->invokeClass($class, [$data, $code,$trace]);
     }
 
     /**
@@ -264,11 +265,10 @@ abstract class Response
      */
     public function content($content)
     {
-        if (
-            null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
-                $content,
-                '__toString',
-            ])
+        if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
+            $content,
+            '__toString',
+        ])
         ) {
             throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
         }
@@ -392,11 +392,10 @@ abstract class Response
         if (null == $this->content) {
             $content = $this->output($this->data);
 
-            if (
-                null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
-                    $content,
-                    '__toString',
-                ])
+            if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
+                $content,
+                '__toString',
+            ])
             ) {
                 throw new \InvalidArgumentException(sprintf('variable type error： %s', gettype($content)));
             }
@@ -415,15 +414,5 @@ abstract class Response
     public function getCode(): int
     {
         return $this->code;
-    }
-
-    /**
-     * 获取Cookie对象
-     * @access public
-     * @return Cookie
-     */
-    public function getCookie()
-    {
-        return $this->cookie;
     }
 }

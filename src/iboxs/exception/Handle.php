@@ -1,8 +1,8 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006-2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006-2021 http://iboxsphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -26,6 +26,9 @@ use Throwable;
  */
 class Handle
 {
+    /** @var App */
+    protected $app;
+
     protected $ignoreReport = [
         HttpException::class,
         HttpResponseException::class,
@@ -34,12 +37,11 @@ class Handle
         ValidateException::class,
     ];
 
-    protected $showErrorMsg = [
+    protected $isJson = false;
 
-    ];
-
-    public function __construct(protected App $app)
+    public function __construct(App $app)
     {
+        $this->app = $app;
     }
 
     /**
@@ -60,13 +62,13 @@ class Handle
                     'message' => $this->getMessage($exception),
                     'code'    => $this->getCode($exception),
                 ];
-                $log  = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+                $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
                     'code'    => $this->getCode($exception),
                     'message' => $this->getMessage($exception),
                 ];
-                $log  = "[{$data['code']}]{$data['message']}";
+                $log = "[{$data['code']}]{$data['message']}";
             }
 
             if ($this->app->config->get('log.record_trace')) {
@@ -75,8 +77,7 @@ class Handle
 
             try {
                 $this->app->log->record($log, 'error');
-            } catch (Exception $e) {
-            }
+            } catch (Exception $e) {}
         }
     }
 
@@ -99,14 +100,15 @@ class Handle
      * @param Throwable $e
      * @return Response
      */
-    public function render(Request $request, Throwable $e): Response
+    public function render($request, Throwable $e): Response
     {
+        $this->isJson = $request->isJson();
         if ($e instanceof HttpResponseException) {
             return $e->getResponse();
         } elseif ($e instanceof HttpException) {
-            return $this->renderHttpException($request, $e);
+            return $this->renderHttpException($e);
         } else {
-            return $this->convertExceptionToResponse($request, $e);
+            return $this->convertExceptionToResponse($e);
         }
     }
 
@@ -129,7 +131,7 @@ class Handle
      * @param HttpException $e
      * @return Response
      */
-    protected function renderHttpException(Request $request, HttpException $e): Response
+    protected function renderHttpException(HttpException $e): Response
     {
         $status   = $e->getStatusCode();
         $template = $this->app->config->get('app.http_exception_template');
@@ -137,7 +139,7 @@ class Handle
         if (!$this->app->isDebug() && !empty($template[$status])) {
             return Response::create($template[$status], 'view', $status)->assign(['e' => $e]);
         } else {
-            return $this->convertExceptionToResponse($request, $e);
+            return $this->convertExceptionToResponse($e);
         }
     }
 
@@ -148,90 +150,49 @@ class Handle
      */
     protected function convertExceptionToArray(Throwable $exception): array
     {
-        return $this->app->isDebug() ? $this->getDebugMsg($exception) : $this->getDeployMsg($exception);
-    }
+        if ($this->app->isDebug()) {
+            // 调试模式，获取详细的错误信息
+            $traces        = [];
+            $nextException = $exception;
+            do {
+                $traces[] = [
+                    'name'    => get_class($nextException),
+                    'file'    => $nextException->getFile(),
+                    'line'    => $nextException->getLine(),
+                    'code'    => $this->getCode($nextException),
+                    'message' => $this->getMessage($nextException),
+                    'trace'   => $nextException->getTrace(),
+                    'source'  => $this->getSourceCode($nextException),
+                ];
+            } while ($nextException = $nextException->getPrevious());
+            $data = [
+                'code'    => $this->getCode($exception),
+                'message' => $this->getMessage($exception),
+                'traces'  => $traces,
+                'datas'   => $this->getExtendData($exception),
+                'tables'  => [
+                    'GET Data'            => $this->app->request->get(),
+                    'POST Data'           => $this->app->request->post(),
+                    'Files'               => $this->app->request->file(),
+                    'Cookies'             => $this->app->request->cookie(),
+                    'Session'             => $this->app->exists('session') ? $this->app->session->all() : [],
+                    'Server/Request Data' => $this->app->request->server(),
+                ],
+            ];
+        } else {
+            // 部署模式仅显示 Code 和 Message
+            $data = [
+                'code'    => $this->getCode($exception),
+                'message' => $this->getMessage($exception),
+            ];
 
-    /**
-     * 是否显示错误信息
-     * @param \Throwable $exception
-     * @return bool
-     */
-    protected function isShowErrorMsg(Throwable $exception)
-    {
-        foreach ($this->showErrorMsg as $class) {
-            if ($exception instanceof $class) {
-                return true;
+            if (!$this->app->config->get('app.show_error_msg')) {
+                // 不显示详细错误信息
+                $data['message'] = $this->app->config->get('app.error_message');
             }
         }
 
-        return false;
-    }
-
-    /**
-     * 获取部署模式异常数据
-     * @access protected
-     * @param Throwable $exception
-     * @return array
-     */
-    protected function getDeployMsg(Throwable $exception): array
-    {
-        $showErrorMsg = $this->isShowErrorMsg($exception);
-        if ($showErrorMsg || $this->app->config->get('app.show_error_msg', false)) {
-            $message = $this->getMessage($exception);
-        } else {
-            // 不显示详细错误信息
-            $message = $this->app->config->get('app.error_message');
-        }
-
-        return [
-            'code'    => $this->getCode($exception),
-            'message' => $message,
-        ];
-    }
-
-    /**
-     * 收集调试模式异常数据
-     * @access protected
-     * @param Throwable $exception
-     * @return array
-     */
-    protected function getDebugMsg(Throwable $exception): array
-    {
-        // 调试模式，获取详细的错误信息
-        $traces        = [];
-        $nextException = $exception;
-
-        do {
-            $traces[] = [
-                'name'    => $nextException::class,
-                'file'    => $nextException->getFile(),
-                'line'    => $nextException->getLine(),
-                'code'    => $this->getCode($nextException),
-                'message' => $this->getMessage($nextException),
-                'trace'   => $nextException->getTrace(),
-                'source'  => $this->getSourceCode($nextException),
-            ];
-        } while ($nextException = $nextException->getPrevious());
-
-        return [
-            'code'    => $this->getCode($exception),
-            'message' => $this->getMessage($exception),
-            'traces'  => $traces,
-            'datas'   => $this->getExtendData($exception),
-            'tables'  => [
-                'GET Data'            => $this->app->request->get(),
-                'POST Data'           => $this->app->request->post(),
-                'Files'               => $this->app->request->file(),
-                'Cookies'             => $this->app->request->cookie(),
-                'Session'             => $this->app->exists('session') ? $this->app->session->all() : [],
-                'Server/Request Data' => $this->app->request->server(),
-            ],
-        ];
-    }
-
-    protected function isJson(Request $request)
-    {
-        return $request->isJson();
+        return $data;
     }
 
     /**
@@ -239,12 +200,12 @@ class Handle
      * @param Throwable $exception
      * @return Response
      */
-    protected function convertExceptionToResponse(Request $request, Throwable $exception): Response
+    protected function convertExceptionToResponse(Throwable $exception): Response
     {
-        if ($this->isJson($request)) {
-            $response = Response::create($this->convertExceptionToArray($exception), 'json');
-        } else {
+        if (!$this->isJson) {
             $response = Response::create($this->renderExceptionContent($exception));
+        } else {
+            $response = Response::create($this->convertExceptionToArray($exception), 'json');
         }
 
         if ($exception instanceof HttpException) {
@@ -260,7 +221,7 @@ class Handle
         ob_start();
         $data = $this->convertExceptionToArray($exception);
         extract($data);
-        include $this->app->config->get('app.exception_tmpl') ?: __DIR__ . '/../../tpl/think_exception.tpl';
+        include $this->app->config->get('app.exception_tmpl') ?: __DIR__ . '/../../tpl/iboxs_exception.tpl';
 
         return ob_get_clean();
     }

@@ -1,14 +1,14 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs\facade;
 
@@ -26,10 +26,10 @@ use iboxs\Facade;
  * @method static Driver store(string $name = null) 连接或者切换缓存
  * @method static bool clear() 清空缓冲池
  * @method static mixed get(string $key, mixed $default = null) 读取缓存
- * @method static bool set(string $key, mixed $value, int|\DateInterval|\DateTimeInterface $ttl = null) 写入缓存
+ * @method static bool set(string $key, mixed $value, int|\DateTime $ttl = null) 写入缓存
  * @method static bool delete(string $key) 删除缓存
  * @method static iterable getMultiple(iterable $keys, mixed $default = null) 读取缓存
- * @method static bool setMultiple(iterable $values, null|int|\DateInterval|\DateTimeInterface $ttl = null) 写入缓存
+ * @method static bool setMultiple(iterable $values, null|int|\DateInterval $ttl = null) 写入缓存
  * @method static bool deleteMultiple(iterable $keys) 删除缓存
  * @method static bool has(string $key) 判断缓存是否存在
  * @method static TagSet tag(string|array $name) 缓存标签

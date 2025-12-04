@@ -1,8 +1,8 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://iboxsphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -13,7 +13,6 @@ namespace iboxs\session\driver;
 use Psr\SimpleCache\CacheInterface;
 use iboxs\contract\SessionHandlerInterface;
 use iboxs\helper\Arr;
-use iboxs\redis\Redis;
 
 class Cache implements SessionHandlerInterface
 {
@@ -36,28 +35,20 @@ class Cache implements SessionHandlerInterface
 
     public function read(string $sessionId): string
     {
-        $val=Redis::basic()->get($this->prefix . $sessionId);
-        if($val===null){
-            return '';
-        }else{
-            if(is_array($val)){
-                return serialize($val);
-            }
-            return $val;
+        $data=$this->handler->get($this->prefix . $sessionId);
+        if(is_array($data)){
+            return serialize($data);
         }
-
-        // return (string) $this->handler->get($this->prefix . $sessionId);
+        return (string) $data;
     }
 
     public function delete(string $sessionId): bool
     {
-        // return $this->handler->delete($this->prefix . $sessionId);
-        return Redis::basic()->del($this->prefix . $sessionId)>0;
+        return $this->handler->delete($this->prefix . $sessionId);
     }
 
     public function write(string $sessionId, string $data): bool
     {
-        // return $this->handler->set($this->prefix . $sessionId, $data, $this->expire);
-        return Redis::basic()->set($this->prefix . $sessionId,$data,$this->expire);
+        return $this->handler->set($this->prefix . $sessionId, $data, $this->expire);
     }
 }

@@ -1,25 +1,81 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
 namespace iboxs\cache\driver;
 
-use DateInterval;
-use DateTimeInterface;
 use iboxs\cache\Driver;
-use iboxs\exception\InvalidCacheException;
 use iboxs\redis\Redis as IboxsRedis;
 
+/**
+ * Redis缓存驱动，适合单机部署、有前端代理实现高可用的场景，性能最好
+ * 有需要在业务层实现读写分离、或者使用RedisCluster的需求，请使用Redisd驱动
+ *
+ * 要求安装phpredis扩展：https://github.com/nicolasff/phpredis
+ * @author    尘缘 <130775@qq.com>
+ */
 class Redis extends Driver
 {
+    /** @var \Predis\Client|\Redis */
+    protected $handler;
+
+    /**
+     * 配置参数
+     * @var array
+     */
+    protected $options = [
+        'host'       => '127.0.0.1',
+        'port'       => 6379,
+        'password'   => '',
+        'select'     => 0,
+        'timeout'    => 0,
+        'expire'     => 0,
+        'persistent' => false,
+        'prefix'     => '',
+        'tag_prefix' => 'tag:',
+        'serialize'  => [],
+    ];
+
+    /**
+     * 架构函数
+     * @access public
+     * @param array $options 缓存参数
+     */
+    public function __construct(array $options = [])
+    {
+        if (!empty($options)) {
+            $this->options = array_merge($this->options, $options);
+        }
+
+        if (extension_loaded('redis')) {
+            $this->handler = new \Redis;
+
+            if ($this->options['persistent']) {
+                $this->handler->pconnect($this->options['host'], (int) $this->options['port'], (int) $this->options['timeout'], 'persistent_id_' . $this->options['select']);
+            } else {
+                $this->handler->pconnect($this->options['host'], (int) $this->options['port'], (int) $this->options['timeout']);
+            }
+
+            if ('' != $this->options['password']) {
+                $this->handler->auth($this->options['password']);
+            }
+        } else {
+            throw new \BadFunctionCallException('not support: redis');
+        }
+
+        if (0 != $this->options['select']) {
+            $this->handler->select((int) $this->options['select']);
+        }
+    }
+
     /**
      * 判断缓存
      * @access public
@@ -38,7 +94,7 @@ class Redis extends Driver
      * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name, $default = null): mixed
+    public function get($name, $default = null)
     {
         return IboxsRedis::basic()->get($name,$default);
     }
@@ -46,17 +102,13 @@ class Redis extends Driver
     /**
      * 写入缓存
      * @access public
-     * @param string                                 $name   缓存变量名
-     * @param mixed                                  $value  存储数据
-     * @param integer|DateInterval|DateTimeInterface $expire 有效时间（秒）
+     * @param string            $name   缓存变量名
+     * @param mixed             $value  存储数据
+     * @param integer|\DateTime $expire 有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null): bool
     {
-        if (is_null($expire)) {
-            $expire = $this->options['expire'];
-        }
-
         return IboxsRedis::basic()->set($name,$value,$expire);
     }
 
@@ -67,7 +119,7 @@ class Redis extends Driver
      * @param int    $step 步长
      * @return false|int
      */
-    public function inc($name, $step = 1)
+    public function inc(string $name, int $step = 1)
     {
         return IboxsRedis::basic()->inc($name,$step);
     }
@@ -79,8 +131,9 @@ class Redis extends Driver
      * @param int    $step 步长
      * @return false|int
      */
-    public function dec($name, $step = 1)
+    public function dec(string $name, int $step = 1)
     {
+        $this->writeTimes++;
         return IboxsRedis::basic()->dec($name,$step);
     }
 
@@ -92,7 +145,8 @@ class Redis extends Driver
      */
     public function delete($name): bool
     {
-        return IboxsRedis::basic()->del($name)>0;
+        $this->writeTimes++;
+        return IboxsRedis::basic()->del($name);
     }
 
     /**
@@ -111,7 +165,7 @@ class Redis extends Driver
      * @param array $keys 缓存标识列表
      * @return void
      */
-    public function clearTag($keys): void
+    public function clearTag(array $keys): void
     {
         IboxsRedis::basic()->del($keys);
     }
@@ -123,9 +177,10 @@ class Redis extends Driver
      * @param mixed  $value 数据
      * @return void
      */
-    public function append($name, $value): void
+    public function append(string $name, $value): void
     {
-        IboxsRedis::Set()->add($name,$value);
+        $key = $this->getCacheKey($name);
+        $this->handler->sAdd($key, $value);
     }
 
     /**
@@ -136,6 +191,9 @@ class Redis extends Driver
      */
     public function getTagItems(string $tag): array
     {
-       return IboxsRedis::Set()->members($tag);
+        $name = $this->getTagKey($tag);
+        $key  = $this->getCacheKey($name);
+        return $this->handler->sMembers($key);
     }
+
 }

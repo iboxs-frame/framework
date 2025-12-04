@@ -6,16 +6,12 @@
         "iboxsphp",
         "ORM"
     ],
-    "homepage": "http://iboxsphp.cn/",
+    "homepage": "http://www.lyweb.com.cn/",
     "license": "Apache-2.0",
     "authors": [
         {
-            "name": "liu21st",
-            "email": "liu21st@gmail.com"
-        },
-        {
-            "name": "yunwuxin",
-            "email": "448901948@qq.com"
+            "name": "itlattice",
+            "email": "itlattice@gmail.com"
         }
     ],
     "require": {
@@ -27,8 +23,7 @@
         "psr/simple-cache": "^1.0",
         "psr/http-message": "^1.0",
         "iboxs/iboxs-orm": "^1.0",
-        "iboxs/iboxs-helper": "^1.0",
-        "iboxs/iboxs-validate": "*"
+        "iboxs/iboxs-helper": "^1.0"
     },
     "require-dev": {
         "mikey179/vfsstream": "^1.6",

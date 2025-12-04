@@ -1,14 +1,14 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://iboxsphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs\console\command;
 
@@ -39,11 +39,11 @@ class VendorPublish extends Command
                 //配置
                 $configDir = $this->app->getConfigPath();
 
-                if (!empty($package['extra']['think']['config'])) {
+                if (!empty($package['extra']['iboxs']['config'])) {
 
                     $installPath = $this->app->getRootPath() . 'vendor/' . $package['name'] . DIRECTORY_SEPARATOR;
 
-                    foreach ((array) $package['extra']['think']['config'] as $name => $file) {
+                    foreach ((array) $package['extra']['iboxs']['config'] as $name => $file) {
 
                         $target = $configDir . $name . '.php';
                         $source = $installPath . $file;

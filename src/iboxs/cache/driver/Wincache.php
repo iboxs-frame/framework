@@ -1,21 +1,18 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
 namespace iboxs\cache\driver;
 
-use DateInterval;
-use DateTimeInterface;
 use iboxs\cache\Driver;
-use iboxs\exception\InvalidCacheException;
 
 /**
  * Wincache缓存驱动
@@ -27,11 +24,10 @@ class Wincache extends Driver
      * @var array
      */
     protected $options = [
-        'prefix'      => '',
-        'expire'      => 0,
-        'tag_prefix'  => 'tag:',
-        'serialize'   => [],
-        'fail_delete' => false,
+        'prefix'     => '',
+        'expire'     => 0,
+        'tag_prefix' => 'tag:',
+        'serialize'  => [],
     ];
 
     /**
@@ -73,26 +69,27 @@ class Wincache extends Driver
      * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name, $default = null): mixed
+    public function get($name, $default = null)
     {
+        $this->readTimes++;
+
         $key = $this->getCacheKey($name);
-        try {
-            return wincache_ucache_exists($key) ? $this->unserialize(wincache_ucache_get($key)) : $this->getDefaultValue($name, $default);
-        } catch (InvalidCacheException $e) {
-            return $this->getDefaultValue($name, $default, true);
-        }
+
+        return wincache_ucache_exists($key) ? $this->unserialize(wincache_ucache_get($key)) : $default;
     }
 
     /**
      * 写入缓存
      * @access public
-     * @param string                                 $name   缓存变量名
-     * @param mixed                                  $value  存储数据
-     * @param integer|DateInterval|DateTimeInterface $expire 有效时间（秒）
+     * @param string            $name   缓存变量名
+     * @param mixed             $value  存储数据
+     * @param integer|\DateTime $expire 有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null): bool
     {
+        $this->writeTimes++;
+
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -115,8 +112,10 @@ class Wincache extends Driver
      * @param int    $step 步长
      * @return false|int
      */
-    public function inc($name, $step = 1)
+    public function inc(string $name, int $step = 1)
     {
+        $this->writeTimes++;
+
         $key = $this->getCacheKey($name);
 
         return wincache_ucache_inc($key, $step);
@@ -129,8 +128,10 @@ class Wincache extends Driver
      * @param int    $step 步长
      * @return false|int
      */
-    public function dec($name, $step = 1)
+    public function dec(string $name, int $step = 1)
     {
+        $this->writeTimes++;
+
         $key = $this->getCacheKey($name);
 
         return wincache_ucache_dec($key, $step);
@@ -144,6 +145,8 @@ class Wincache extends Driver
      */
     public function delete($name): bool
     {
+        $this->writeTimes++;
+
         return wincache_ucache_delete($this->getCacheKey($name));
     }
 
@@ -154,6 +157,7 @@ class Wincache extends Driver
      */
     public function clear(): bool
     {
+        $this->writeTimes++;
         return wincache_ucache_clear();
     }
 
@@ -163,8 +167,9 @@ class Wincache extends Driver
      * @param array $keys 缓存标识列表
      * @return void
      */
-    public function clearTag($keys): void
+    public function clearTag(array $keys): void
     {
         wincache_ucache_delete($keys);
     }
+
 }

@@ -1,10 +1,25 @@
 <?php
 namespace iboxs\convert;
 
+use iboxs\exception\HttpResponseException;
 use iboxs\facade\View;
+use iboxs\Response;
 
 trait Convert{
+    public function endResponse(Response $response){
+        throw new HttpResponseException($response);
+    }
+
+    public function endJson($jsonArr,$statusCode=200,$header=[]){
+        return $this->endResponse(json($jsonArr,$statusCode,$header));
+    }
+
+    public function end($content,$statusCode=200,$header=[],$type='html',$trace=true){
+        return $this->endResponse(response($content,$statusCode,$header,$type,$trace));
+    }
+
     protected function fetch($template='',$vars=[],$code=200,$trace=true,$filter=null){
+        $this->assign('host',env('HOST'));
         return view($template,$vars,$code,$trace,$filter);
     }
 

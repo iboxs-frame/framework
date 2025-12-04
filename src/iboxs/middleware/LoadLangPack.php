@@ -1,12 +1,12 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
@@ -25,10 +25,14 @@ use iboxs\Response;
  */
 class LoadLangPack
 {
+    protected $app;
+    protected $lang;
     protected $config;
 
-    public function __construct(protected App $app, protected Lang $lang, Config $config)
+    public function __construct(App $app, Lang $lang, Config $config)
     {
+        $this->app    = $app;
+        $this->lang   = $lang;
         $this->config = $lang->getConfig();
     }
 
@@ -39,7 +43,7 @@ class LoadLangPack
      * @param Closure $next
      * @return Response
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle($request, Closure $next)
     {
         // 自动侦测当前语言
         $langset = $this->detect($request);
@@ -73,7 +77,7 @@ class LoadLangPack
         } elseif ($request->cookie($this->config['cookie_var'])) {
             // Cookie中设置了语言变量
             $langSet = $request->cookie($this->config['cookie_var']);
-        } elseif ($this->config['auto_detect_browser'] && $request->server('HTTP_ACCEPT_LANGUAGE')) {
+        } elseif ($request->server('HTTP_ACCEPT_LANGUAGE')) {
             // 自动侦测浏览器语言
             $langSet = $request->server('HTTP_ACCEPT_LANGUAGE');
         }
@@ -104,10 +108,11 @@ class LoadLangPack
      * @param string $langSet 语言
      * @return void
      */
-    protected function saveToCookie(Cookie $cookie, string $langSet): void
+    protected function saveToCookie(Cookie $cookie, string $langSet)
     {
         if ($this->config['use_cookie']) {
             $cookie->set($this->config['cookie_var'], $langSet);
         }
     }
+
 }

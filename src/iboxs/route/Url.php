@@ -1,14 +1,14 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs\route;
 
@@ -20,6 +20,30 @@ use iboxs\Route;
  */
 class Url
 {
+    /**
+     * 应用对象
+     * @var App
+     */
+    protected $app;
+
+    /**
+     * 路由对象
+     * @var Route
+     */
+    protected $route;
+
+    /**
+     * URL变量
+     * @var array
+     */
+    protected $vars = [];
+
+    /**
+     * 路由URL
+     * @var string
+     */
+    protected $url;
+
     /**
      * URL 根地址
      * @var string
@@ -47,13 +71,15 @@ class Url
     /**
      * 架构函数
      * @access public
-     * @param  Route  $route 路由对象
-     * @param  App    $app App对象
      * @param  string $url URL地址
      * @param  array  $vars 参数
      */
-    public function __construct(protected Route $route, protected App $app, protected string $url = '', protected array $vars = [])
+    public function __construct(Route $route, App $app, string $url = '', array $vars = [])
     {
+        $this->route = $route;
+        $this->app   = $app;
+        $this->url   = $url;
+        $this->vars  = $vars;
     }
 
     /**
@@ -74,7 +100,7 @@ class Url
      * @param  string|bool $suffix URL后缀
      * @return $this
      */
-    public function suffix(string|bool $suffix)
+    public function suffix($suffix)
     {
         $this->suffix = $suffix;
         return $this;
@@ -86,7 +112,7 @@ class Url
      * @param  string|bool $domain URL域名
      * @return $this
      */
-    public function domain(string|bool $domain)
+    public function domain($domain)
     {
         $this->domain = $domain;
         return $this;
@@ -123,7 +149,7 @@ class Url
      * @param  string|true $domain 域名
      * @return string
      */
-    protected function parseDomain(string &$url, string|bool $domain): string
+    protected function parseDomain(string &$url, $domain): string
     {
         if (!$domain) {
             return '';
@@ -140,10 +166,10 @@ class Url
             if (!empty($domains)) {
                 $routeDomain = array_keys($domains);
                 foreach ($routeDomain as $domainPrefix) {
-                    if (str_starts_with($domainPrefix, '*.') && str_contains($domain, ltrim($domainPrefix, '*.')) !== false) {
+                    if (str_starts_with($domainPrefix, '*.') && str_contains($domain, ltrim($domainPrefix, '*.'))) {
                         foreach ($domains as $key => $rule) {
                             $rule = is_array($rule) ? $rule[0] : $rule;
-                            if (is_string($rule) && !str_contains($key, '*') && str_starts_with($url, $rule)) {
+                            if (is_string($rule) && false === str_contains($key, '*') && str_starts_with($url, $rule)) {
                                 $url    = ltrim($url, $rule);
                                 $domain = $key;
 
@@ -163,7 +189,7 @@ class Url
                     }
                 }
             }
-        } elseif (!str_contains($domain, '.') && !str_starts_with($domain, $rootDomain)) {
+        } elseif (false === str_contains($domain, '.') && false === str_starts_with($domain, $rootDomain)) {
             $domain .= '.' . $rootDomain;
         }
 
@@ -182,7 +208,7 @@ class Url
      * @param  string|bool $suffix 后缀
      * @return string
      */
-    protected function parseSuffix(string|bool $suffix): string
+    protected function parseSuffix($suffix): string
     {
         if ($suffix) {
             $suffix = true === $suffix ? $this->route->config('url_html_suffix') : $suffix;
@@ -202,26 +228,29 @@ class Url
      * @param  string|bool $domain Domain
      * @return string
      */
-    protected function parseUrl(string $url, string | bool &$domain): string
+    protected function parseUrl(string $url, &$domain): string
     {
         $request = $this->app->request;
 
         if (str_starts_with($url, '/')) {
             // 直接作为路由地址解析
             $url = substr($url, 1);
+        } elseif (str_contains($url, '\\')) {
+            // 解析到类
+            $url = ltrim(str_replace('\\', '/', $url), '/');
+        } elseif (str_starts_with($url, '@')) {
+            // 解析到控制器
+            $url = substr($url, 1);
         } elseif ('' === $url) {
-            $url  = $request->pathinfo();
+            $url = $request->controller() . '/' . $request->action();
         } else {
             $controller = $request->controller();
+
             $path       = explode('/', $url);
             $action     = array_pop($path);
             $controller = empty($path) ? $controller : array_pop($path);
-            $url        = $controller . '/' . $action;
-            $auto       = $this->route->getName('__think_auto_route__');
-            if (!empty($auto) && !strpos($controller,'.')) {
-                $module = empty($path) ? $request->layer() : array_pop($path);
-                $url    = $module . '/' . $url;
-            }
+
+            $url = $controller . '/' . $action;
         }
 
         return $url;
@@ -261,13 +290,13 @@ class Url
      * @access protected
      * @param  array $rule 路由规则
      * @param  array $vars 路由变量
-     * @param  string|bool $allowDomain 允许域名
+     * @param  mixed $allowDomain 允许域名
      * @return array
      */
-    protected function getRuleUrl(array $rule, array &$vars = [], string|bool $allowDomain = ''): array
+    protected function getRuleUrl(array $rule, array &$vars = [], $allowDomain = ''): array
     {
         $request = $this->app->request;
-        if (is_string($allowDomain) && !str_contains($allowDomain, '.')) {
+        if (is_string($allowDomain) && false === str_contains($allowDomain, '.')) {
             $allowDomain .= '.' . $request->rootDomain();
         }
         $port = $request->port();
@@ -329,7 +358,7 @@ class Url
      * @access public
      * @return string
      */
-    public function build(): string
+    public function build()
     {
         // 解析URL
         $url     = $this->url;
@@ -344,7 +373,7 @@ class Url
             $url  = 'name' . substr($url, $pos + 1);
         }
 
-        if (!str_contains($url, '://') && !str_starts_with($url, '/')) {
+        if (false === str_contains($url, '://') && false === str_starts_with($url, '/')) {
             $info = parse_url($url);
             $url  = !empty($info['path']) ? $info['path'] : '';
 
@@ -361,7 +390,7 @@ class Url
                     // 解析域名
                     [$anchor, $domain] = explode('@', $anchor, 2);
                 }
-            } elseif (str_contains($url, '@') && !str_contains($url, '\\')) {
+            } elseif (str_contains($url, '@') && false === str_contains($url, '\\')) {
                 // 解析域名
                 [$url, $domain] = explode('@', $url, 2);
             }
@@ -401,6 +430,16 @@ class Url
 
             if ($bind && str_starts_with($url, $bind)) {
                 $url = substr($url, strlen($bind) + 1);
+            } else {
+                $binds = $this->route->getBind();
+
+                foreach ($binds as $key => $val) {
+                    if (is_string($val) && str_starts_with($url, $val) && substr_count($val, '/') > 1) {
+                        $url    = substr($url, strlen($val) + 1);
+                        $domain = $key;
+                        break;
+                    }
+                }
             }
 
             // 路由标识不存在 直接解析
@@ -418,14 +457,14 @@ class Url
         $url  = str_replace('/', $depr, $url);
 
         $file = $request->baseFile();
-        if ($file && !str_starts_with($request->url(), $file)) {
+        if ($file && false === str_starts_with($request->url(), $file)) {
             $file = str_replace('\\', '/', dirname($file));
         }
 
         $url = rtrim($file, '/') . '/' . $url;
 
         // URL后缀
-        if (str_ends_with($url, '/') || '' == $url) {
+        if ('/' == substr($url, -1) || '' == $url) {
             $suffix = '';
         } else {
             $suffix = $this->parseSuffix($suffix);

@@ -1,14 +1,14 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs\response;
 
@@ -25,7 +25,7 @@ class Xml extends Response
     // 输出参数
     protected $options = [
         // 根节点名
-        'root_node' => 'think',
+        'root_node' => 'iboxs',
         // 根节点属性
         'root_attr' => '',
         //数字索引的子节点名
@@ -53,7 +53,7 @@ class Xml extends Response
     protected function output($data): string
     {
         if (is_string($data)) {
-            if (!str_starts_with($data, '<?xml')) {
+            if (false === str_starts_with($data, '<?xml')) {
                 $encoding = $this->options['encoding'];
                 $xml      = "<?xml version=\"1.0\" encoding=\"{$encoding}\"?>";
                 $data     = $xml . $data;

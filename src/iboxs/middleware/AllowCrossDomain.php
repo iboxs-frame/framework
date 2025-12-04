@@ -1,18 +1,19 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs\middleware;
 
 use Closure;
+use iboxs\basic\Basic;
 use iboxs\Config;
 use iboxs\Request;
 use iboxs\Response;
@@ -28,7 +29,7 @@ class AllowCrossDomain
         'Access-Control-Allow-Credentials' => 'true',
         'Access-Control-Max-Age'           => 1800,
         'Access-Control-Allow-Methods'     => 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers'     => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-CSRF-TOKEN, X-Requested-With',
+        'Access-Control-Allow-Headers'     => 'Authtoken, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-CSRF-TOKEN, X-Requested-With',
     ];
 
     public function __construct(Config $config)
@@ -44,20 +45,27 @@ class AllowCrossDomain
      * @param array   $header
      * @return Response
      */
-    public function handle(Request $request, Closure $next, array $header = []): Response
+    public function handle($request, Closure $next, ? array $header = [])
     {
-        $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
-
-        if (!isset($header['Access-Control-Allow-Origin'])) {
-            $origin = $request->header('origin');
-
-            if ($origin && ('' == $this->cookieDomain || str_contains($origin, $this->cookieDomain))) {
-                $header['Access-Control-Allow-Origin'] = $origin;
-            } else {
-                $header['Access-Control-Allow-Origin'] = '*';
-            }
+        $refer=request()->header('Referer');
+        if(isDebug()||$this->referCheck($refer)){
+            $this->header=AccessControlHeader();
         }
+        return $next($request)->header($this->header);
+    }
 
-        return $next($request)->header($header);
+    private function referCheck($refer){
+        if(Basic::isEmpty($refer)){
+            return true;
+        }
+        $urlinfo=pathinfo($refer);
+        $base=$urlinfo['basename'];
+        if(Basic::isEmpty($base)){
+            return true;
+        }
+        if(substr_count(env('host'),$base)<1&&$base!="localhost"){
+            return false;
+        }
+        return true;
     }
 }

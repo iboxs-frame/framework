@@ -1,14 +1,14 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs;
 
@@ -24,6 +24,12 @@ use Throwable;
  */
 class Http
 {
+
+    /**
+     * @var App
+     */
+    protected $app;
+
     /**
      * 应用名称
      * @var string
@@ -48,8 +54,10 @@ class Http
      */
     protected $isBind = false;
 
-    public function __construct(protected App $app)
+    public function __construct(App $app)
     {
+        $this->app = $app;
+
         $this->routePath = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;
     }
 
@@ -83,7 +91,7 @@ class Http
      */
     public function path(string $path)
     {
-        if (!str_ends_with($path, DIRECTORY_SEPARATOR)) {
+        if (substr($path, -1) != DIRECTORY_SEPARATOR) {
             $path .= DIRECTORY_SEPARATOR;
         }
 
@@ -149,7 +157,7 @@ class Http
      * @param Request|null $request
      * @return Response
      */
-    public function run(?Request $request = null): Response
+    public function run(Request $request = null): Response
     {
         //初始化
         $this->initialize();
@@ -203,7 +211,7 @@ class Http
     {
         $withRoute = $this->app->config->get('app.with_route', true) ? function () {
             $this->loadRoutes();
-        } : false;
+        } : null;
 
         return $this->app->route->dispatch($request, $withRoute);
     }
@@ -276,4 +284,5 @@ class Http
         // 写入日志
         $this->app->log->save();
     }
+
 }

@@ -1,18 +1,19 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://iboxsphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
 // | Author: Slince <taosikai@yeah.net>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs;
 
 use Closure;
+use InvalidArgumentException;
 use LogicException;
 use iboxs\exception\Handle;
 use Throwable;
@@ -29,8 +30,15 @@ class Middleware
      */
     protected $queue = [];
 
-    public function __construct(protected App $app)
+    /**
+     * 应用对象
+     * @var App
+     */
+    protected $app;
+
+    public function __construct(App $app)
     {
+        $this->app = $app;
     }
 
     /**
@@ -54,7 +62,7 @@ class Middleware
      * @param string $type 中间件类型
      * @return void
      */
-    public function add(array|string|Closure $middleware, string $type = 'global'): void
+    public function add($middleware, string $type = 'global'): void
     {
         $middleware = $this->buildMiddleware($middleware, $type);
 
@@ -70,7 +78,7 @@ class Middleware
      * @param mixed $middleware
      * @return void
      */
-    public function route(array|string|Closure $middleware): void
+    public function route($middleware): void
     {
         $this->add($middleware, 'route');
     }
@@ -81,7 +89,7 @@ class Middleware
      * @param mixed $middleware
      * @return void
      */
-    public function controller(array|string|Closure $middleware): void
+    public function controller($middleware): void
     {
         $this->add($middleware, 'controller');
     }
@@ -92,7 +100,7 @@ class Middleware
      * @param mixed  $middleware
      * @param string $type 中间件类型
      */
-    public function unshift(array|string|Closure $middleware, string $type = 'global')
+    public function unshift($middleware, string $type = 'global')
     {
         $middleware = $this->buildMiddleware($middleware, $type);
 
@@ -180,22 +188,22 @@ class Middleware
     /**
      * 解析中间件
      * @access protected
-     * @param array|string|Closure  $middleware
+     * @param mixed  $middleware
      * @param string $type 中间件类型
      * @return array
      */
-    protected function buildMiddleware(array|string|Closure $middleware, string $type): array
+    protected function buildMiddleware($middleware, string $type): array
     {
-        if (empty($middleware)) {
-            return [];
-        }
-        
         if (is_array($middleware)) {
             [$middleware, $params] = $middleware;
         }
 
         if ($middleware instanceof Closure) {
             return [$middleware, $params ?? []];
+        }
+
+        if (!is_string($middleware)) {
+            throw new InvalidArgumentException('The middleware is invalid');
         }
 
         //中间件别名检查
@@ -245,4 +253,5 @@ class Middleware
         }
         return -1;
     }
+
 }

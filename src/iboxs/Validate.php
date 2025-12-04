@@ -642,7 +642,7 @@ class Validate
                 // 验证失败 返回错误信息
                 if (!empty($msg[$i])) {
                     $message = $msg[$i];
-                    if (is_string($message) && str_starts_with($message, '{%') === 0) {
+                    if (is_string($message) && str_starts_with($message, '{%')) {
                         $message = $this->lang->get(substr($message, 2, -1));
                     }
                 } else {

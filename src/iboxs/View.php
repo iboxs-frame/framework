@@ -1,18 +1,17 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs;
 
-use iboxs\contract\TemplateHandlerInterface;
 use iboxs\helper\Arr;
 
 /**
@@ -40,9 +39,9 @@ class View extends Manager
      * 获取模板引擎
      * @access public
      * @param string $type 模板引擎类型
-     * @return TemplateHandlerInterface
+     * @return $this
      */
-    public function engine(?string $type = null)
+    public function engine(string $type = null)
     {
         return $this->driver($type);
     }
@@ -54,7 +53,7 @@ class View extends Manager
      * @param mixed        $value 变量值
      * @return $this
      */
-    public function assign(string|array $name, $value = null)
+    public function assign($name, $value = null)
     {
         if (is_array($name)) {
             $this->data = array_merge($this->data, $name);
@@ -71,7 +70,7 @@ class View extends Manager
      * @param Callable $filter 过滤方法或闭包
      * @return $this
      */
-    public function filter(?callable $filter = null)
+    public function filter(callable $filter = null)
     {
         $this->filter = $filter;
         return $this;
@@ -116,7 +115,11 @@ class View extends Manager
     {
         // 页面缓存
         ob_start();
-        ob_implicit_flush(false);
+        if (PHP_VERSION > 8.0) {
+            ob_implicit_flush(false);
+        } else {
+            ob_implicit_flush(0);
+        }
 
         // 渲染输出
         try {
@@ -184,4 +187,5 @@ class View extends Manager
     {
         return $this->app->config->get('view.type', 'php');
     }
+
 }

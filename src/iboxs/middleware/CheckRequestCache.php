@@ -1,14 +1,14 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs\middleware;
 
@@ -58,7 +58,7 @@ class CheckRequestCache
      * @param mixed   $cache
      * @return Response
      */
-    public function handle(Request $request, Closure $next, $cache = null): Response
+    public function handle($request, Closure $next, $cache = null)
     {
         if ($request->isGet() && false !== $cache) {
             if (false === $this->config['request_cache_key']) {
@@ -70,11 +70,11 @@ class CheckRequestCache
 
             if ($cache) {
                 if (is_array($cache)) {
-                    [$key, $expire, $tag] = array_pad($cache, 3, '');
+                    [$key, $expire, $tag] = array_pad($cache, 3, null);
                 } else {
                     $key    = md5($request->url(true));
                     $expire = $cache;
-                    $tag    = '';
+                    $tag    = null;
                 }
 
                 $key = $this->parseCacheKey($request, $key);
@@ -136,7 +136,7 @@ class CheckRequestCache
      */
     protected function parseCacheKey($request, $key)
     {
-        if ($key instanceof Closure) {
+        if ($key instanceof \Closure) {
             $key = call_user_func($key, $request);
         }
 

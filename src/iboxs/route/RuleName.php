@@ -1,14 +1,14 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs\route;
 
@@ -101,20 +101,9 @@ class RuleName
      * @param  string $name 路由分组标识
      * @return RuleGroup|null
      */
-    public function getGroup(string $name): ?RuleGroup
+    public function getGroup(string $name)
     {
         return $this->group[strtolower($name)] ?? null;
-    }
-
-    /**
-     * 是否已经存在分组
-     * @access public
-     * @param  string $name 路由分组标识
-     * @return bool
-     */
-    public function hasGroup(string $name): bool 
-    {
-        return isset($this->group[strtolower($name)]);
     }
 
     /**
@@ -126,7 +115,6 @@ class RuleName
     {
         $this->item = [];
         $this->rule = [];
-        $this->group = [];
     }
 
     /**
@@ -144,11 +132,7 @@ class RuleName
 
                 foreach (['method', 'rule', 'name', 'route', 'domain', 'pattern', 'option'] as $param) {
                     $call        = 'get' . $param;
-                    if ('rule' == $param) {
-                        $val[$param] = $item->$call() ?: '/';
-                    } else {
-                        $val[$param] = $item->$call();
-                    }
+                    $val[$param] = $item->$call();
                 }
 
                 if ($item->isMiss()) {
@@ -181,7 +165,7 @@ class RuleName
      * @param  string $method 请求类型
      * @return array
      */
-    public function getName(?string $name = null, ?string $domain = null, string $method = '*'): array
+    public function getName(string $name = null, string $domain = null, string $method = '*'): array
     {
         if (is_null($name)) {
             return $this->item;

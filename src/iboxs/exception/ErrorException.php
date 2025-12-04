@@ -1,21 +1,21 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://iboxsphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
 // | Author: 麦当苗儿 <zuojiazi@vip.qq.com> <http://zjzit.cn>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs\exception;
 
 use iboxs\Exception;
 
 /**
- * ThinkPHP错误异常
+ * iboxsPHP错误异常
  * 主要用于封装 set_error_handler 和 register_shutdown_function 得到的错误
  * 除开从 iboxs\Exception 继承的功能
  * 其他和PHP系统\ErrorException功能基本一样
@@ -38,6 +38,11 @@ class ErrorException extends Exception
      */
     public function __construct(int $severity, string $message, string $file, int $line)
     {
+        if(isDebug()){
+            if(php_sapi_name()=='cli'){
+                // dd($message,$file,$line);
+            }
+        }
         $this->severity = $severity;
         $this->message  = $message;
         $this->file     = $file;

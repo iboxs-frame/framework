@@ -1,8 +1,8 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2015 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2015 http://iboxsphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -28,7 +28,7 @@ class Stack
      * 构造方法
      * @param Style|null $emptyStyle
      */
-    public function __construct(?Style $emptyStyle = null)
+    public function __construct(Style $emptyStyle = null)
     {
         $this->emptyStyle = $emptyStyle ?: new Style();
         $this->reset();
@@ -57,7 +57,7 @@ class Stack
      * @return Style
      * @throws \InvalidArgumentException
      */
-    public function pop(?Style $style = null): Style
+    public function pop(Style $style = null): Style
     {
         if (empty($this->styles)) {
             return $this->emptyStyle;

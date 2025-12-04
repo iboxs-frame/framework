@@ -1,17 +1,17 @@
 <?php
 // +----------------------------------------------------------------------
-// | IboxsPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://iboxsphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: itlattice <itlattice@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
 //------------------------
-// IboxsPHP 助手函数
+// iboxsPHP 助手函数
 //-------------------------
 
 use iboxs\App;
@@ -40,7 +40,6 @@ use iboxs\response\Xml;
 use iboxs\route\Url as UrlBuild;
 use iboxs\Transformer;
 use iboxs\Validate;
-use iboxs\validate\ValidateRuleSet;
 
 if (!function_exists('abort')) {
     /**
@@ -118,7 +117,7 @@ if (!function_exists('cache')) {
      * @param string $tag     缓存标签
      * @return mixed
      */
-    function cache(?string $name = null, $value = '', $options = null, $tag = null)
+    function cache(string $name = null, $value = '', $options = null, $tag = null)
     {
         if (is_null($name)) {
             return app('cache');
@@ -126,7 +125,7 @@ if (!function_exists('cache')) {
 
         if ('' === $value) {
             // 获取缓存
-            return str_starts_with($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
+            return str_starts_with($name,'?') ? Cache::has(substr($name, 1)) : Cache::get($name);
         } elseif (is_null($value)) {
             // 删除缓存
             return Cache::delete($name);
@@ -160,7 +159,7 @@ if (!function_exists('config')) {
             return Config::set($name, $value);
         }
 
-        return str_starts_with($name, '?') ? Config::has(substr($name, 1)) : Config::get($name, $value);
+        return str_starts_with($name,'?') ? Config::has(substr($name, 1)) : Config::get($name, $value);
     }
 }
 
@@ -179,7 +178,7 @@ if (!function_exists('cookie')) {
             Cookie::delete($name, $option ?: []);
         } elseif ('' === $value) {
             // 获取
-            return str_starts_with($name, '?') ? Cookie::has(substr($name, 1)) : Cookie::get($name);
+            return str_starts_with($name,'?') ? Cookie::has(substr($name, 1)) : Cookie::get($name);
         } else {
             // 设置
             return Cookie::set($name, $value, $option);
@@ -237,7 +236,7 @@ if (!function_exists('env')) {
      * @param string $default 默认值
      * @return mixed
      */
-    function env(?string $name = null, $default = null)
+    function env(string $name = null, $default = null)
     {
         return Env::get($name, $default);
     }
@@ -272,14 +271,14 @@ if (!function_exists('halt')) {
 if (!function_exists('input')) {
     /**
      * 获取输入数据 支持默认值和过滤
-     * @param string $key 获取的变量名
+     * @param string $key     获取的变量名
      * @param mixed  $default 默认值
-     * @param string|array|null $filter 过滤方法
+     * @param string $filter  过滤方法
      * @return mixed
      */
     function input(string $key = '', $default = null, $filter = '')
     {
-        if (str_starts_with($key, '?')) {
+        if (str_starts_with($key,'?')) {
             $key = substr($key, 1);
             $has = true;
         }
@@ -301,8 +300,8 @@ if (!function_exists('input')) {
         }
 
         return isset($has) ?
-            request()->has($key, $method) :
-            request()->$method($key, $default, $filter);
+        request()->has($key, $method) :
+        request()->$method($key, $default, $filter);
     }
 }
 
@@ -423,9 +422,9 @@ if (!function_exists('response')) {
      * @param string     $type
      * @return Response
      */
-    function response($data = '', $code = 200, $header = [], $type = 'html'): Response
+    function response($data = '', $code = 200, $header = [], $type = 'html',$trace=true): Response
     {
-        return Response::create($data, $type, $code)->header($header);
+        return Response::create($data, $type, $code,$trace)->header($header);
     }
 }
 
@@ -566,18 +565,6 @@ if (!function_exists('validate')) {
     }
 }
 
-if (!function_exists('rules')) {
-    /**
-     * 定义ValidateRuleSet规则集合
-     * @param array    $rules     验证因子集
-     * @return ValidateRuleSet
-     */
-    function rules(array $rules): ValidateRuleSet
-    {
-        return ValidateRuleSet::rules($rules);
-    }
-}
-
 if (!function_exists('view')) {
     /**
      * 渲染模板输出
@@ -602,9 +589,9 @@ if (!function_exists('display')) {
      * @param callable $filter  内容过滤
      * @return \iboxs\response\View
      */
-    function display(string $content, $vars = [], $code = 200, $trace=true, $filter = null): View
+    function display(string $content, $vars = [], $code = 200, $filter = null): View
     {
-        return Response::create($content, 'view', $code,$trace)->isContent(true)->assign($vars)->filter($filter);
+        return Response::create($content, 'view', $code)->isContent(true)->assign($vars)->filter($filter);
     }
 }
 

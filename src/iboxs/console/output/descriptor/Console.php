@@ -1,8 +1,8 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2015 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2015 http://iboxsphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -11,7 +11,7 @@
 
 namespace iboxs\console\output\descriptor;
 
-use iboxs\Console as ThinkConsole;
+use iboxs\Console as iboxsConsole;
 use iboxs\console\Command;
 
 class Console
@@ -20,7 +20,7 @@ class Console
     const GLOBAL_NAMESPACE = '_global';
 
     /**
-     * @var ThinkConsole
+     * @var iboxsConsole
      */
     private $console;
 
@@ -46,10 +46,10 @@ class Console
 
     /**
      * 构造方法
-     * @param ThinkConsole $console
+     * @param iboxsConsole $console
      * @param string|null  $namespace
      */
-    public function __construct(ThinkConsole $console, $namespace = null)
+    public function __construct(iboxsConsole $console, $namespace = null)
     {
         $this->console   = $console;
         $this->namespace = $namespace;

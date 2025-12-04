@@ -1,19 +1,16 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types = 1);
+declare (strict_types = 1);
 
 namespace iboxs\cache;
-
-use DateInterval;
-use DateTimeInterface;
 
 /**
  * 标签集合
@@ -21,24 +18,38 @@ use DateTimeInterface;
 class TagSet
 {
     /**
+     * 标签的缓存Key
+     * @var array
+     */
+    protected $tag;
+
+    /**
+     * 缓存句柄
+     * @var Driver
+     */
+    protected $handler;
+
+    /**
      * 架构函数
      * @access public
-     * @param array  $tag     缓存标签
-     * @param Driver $handler 缓存对象
+     * @param array  $tag   缓存标签
+     * @param Driver $cache 缓存对象
      */
-    public function __construct(protected array $tag, protected Driver $handler)
+    public function __construct(array $tag, Driver $cache)
     {
+        $this->tag     = $tag;
+        $this->handler = $cache;
     }
 
     /**
      * 写入缓存
      * @access public
-     * @param string                                 $name   缓存变量名
-     * @param mixed                                  $value  存储数据
-     * @param integer|DateInterval|DateTimeInterface $expire 有效时间（秒）
+     * @param string            $name   缓存变量名
+     * @param mixed             $value  存储数据
+     * @param integer|\DateTime $expire 有效时间（秒）
      * @return bool
      */
-    public function set($name, $value, $expire = null): bool
+    public function set(string $name, $value, $expire = null): bool
     {
         $this->handler->set($name, $value, $expire);
 
@@ -66,8 +77,8 @@ class TagSet
     /**
      * 写入缓存
      * @access public
-     * @param iterable                                $values 缓存数据
-     * @param null|int|DateInterval|DateTimeInterface $ttl    有效时间 0为永久
+     * @param iterable               $values 缓存数据
+     * @param null|int|\DateInterval $ttl    有效时间 0为永久
      * @return bool
      */
     public function setMultiple($values, $ttl = null): bool
@@ -91,7 +102,7 @@ class TagSet
      * @param int    $expire 有效时间 0为永久
      * @return mixed
      */
-    public function remember($name, $value, $expire = null)
+    public function remember(string $name, $value, $expire = null)
     {
         $result = $this->handler->remember($name, $value, $expire);
 
@@ -109,8 +120,8 @@ class TagSet
     {
         // 指定标签清除
         foreach ($this->tag as $tag) {
-            $keys = $this->handler->getTagItems($tag);
-            if (!empty($keys)) $this->handler->clearTag($keys);
+            $names = $this->handler->getTagItems($tag);
+            $this->handler->clearTag($names);
 
             $key = $this->handler->getTagKey($tag);
             $this->handler->delete($key);

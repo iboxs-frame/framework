@@ -1,14 +1,14 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs\response;
 
@@ -36,12 +36,6 @@ class Redirect extends Response
         $this->cacheControl('no-cache,must-revalidate');
     }
 
-    public function data($data)
-    {
-        $this->header['Location'] = $data;
-        return parent::data($data);
-    }
-
     /**
      * 处理数据
      * @access protected
@@ -50,6 +44,8 @@ class Redirect extends Response
      */
     protected function output($data): string
     {
+        $this->header['Location'] = $data;
+
         return '';
     }
 
@@ -93,7 +89,7 @@ class Redirect extends Response
     public function restore()
     {
         if ($this->session->has('redirect_url')) {
-            $this->data($this->session->get('redirect_url'));
+            $this->data = $this->session->get('redirect_url');
             $this->session->delete('redirect_url');
         }
 

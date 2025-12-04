@@ -1,14 +1,14 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs\facade;
 
@@ -27,6 +27,8 @@ use iboxs\route\Url as UrlBuild;
  * @mixin \iboxs\Route
  * @method static mixed config(string $name = null)
  * @method static \iboxs\Route lazy(bool $lazy = true) 设置路由域名及分组（包括资源路由）是否延迟解析
+ * @method static void setTestMode(bool $test) 设置路由为测试模式
+ * @method static bool isTest() 检查路由是否为测试模式
  * @method static \iboxs\Route mergeRuleRegex(bool $merge = true) 设置路由域名及分组（包括资源路由）是否合并解析
  * @method static void setGroup(RuleGroup $group) 设置当前分组
  * @method static RuleGroup getGroup(string $name = null) 获取指定标识的路由分组 不指定则获取当前分组
@@ -46,7 +48,7 @@ use iboxs\route\Url as UrlBuild;
  * @method static array getRuleList() 读取路由列表
  * @method static void clear() 清空路由规则
  * @method static RuleItem rule(string $rule, mixed $route = null, string $method = '*') 注册路由规则
- * @method static \iboxs\Route setCrossDomainRule(Rule $rule) 设置跨域有效路由规则
+ * @method static \iboxs\Route setCrossDomainRule(Rule $rule, string $method = '*') 设置跨域有效路由规则
  * @method static RuleGroup group(string|\Closure $name, mixed $route = null) 注册路由分组
  * @method static RuleItem any(string $rule, mixed $route) 注册路由
  * @method static RuleItem get(string $rule, mixed $route) 注册GET路由
@@ -56,7 +58,7 @@ use iboxs\route\Url as UrlBuild;
  * @method static RuleItem patch(string $rule, mixed $route) 注册PATCH路由
  * @method static RuleItem head(string $rule, mixed $route) 注册HEAD路由
  * @method static RuleItem options(string $rule, mixed $route) 注册OPTIONS路由
- * @method static Resource resource(string $rule, string $route, ?\Closure $extend = null) 注册资源路由
+ * @method static Resource resource(string $rule, string $route) 注册资源路由
  * @method static RuleItem view(string $rule, string $template = '', array $vars = []) 注册视图路由
  * @method static RuleItem redirect(string $rule, string $route = '', int $status = 301) 注册重定向路由
  * @method static \iboxs\Route rest(string|array $name, array|bool $resource = []) rest方法定义和修改

@@ -1,18 +1,16 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
 namespace iboxs;
-
-use Closure;
 
 /**
  * 配置管理类
@@ -27,17 +25,25 @@ class Config
     protected $config = [];
 
     /**
-     * 注册配置获取器
-     * @var Closure
+     * 配置文件目录
+     * @var string
      */
-    protected $hook;
+    protected $path;
+
+    /**
+     * 配置文件后缀
+     * @var string
+     */
+    protected $ext;
 
     /**
      * 构造方法
      * @access public
      */
-    public function __construct(protected string $path = '', protected string $ext = '.php')
+    public function __construct(string $path = null, string $ext = '.php')
     {
+        $this->path = $path ?: '';
+        $this->ext  = $ext;
     }
 
     public static function __make(App $app)
@@ -81,13 +87,23 @@ class Config
     {
         $type   = pathinfo($file, PATHINFO_EXTENSION);
         $config = [];
-        $config = match ($type) {
-            'php' => include $file,
-            'yml', 'yaml' => function_exists('yaml_parse_file') ? yaml_parse_file($file) : [],
-            'ini'         => parse_ini_file($file, true, INI_SCANNER_TYPED) ?: [],
-            'json'        => json_decode(file_get_contents($file), true),
-            default       => [],
-        };
+        switch ($type) {
+            case 'php':
+                $config = include $file;
+                break;
+            case 'yml':
+            case 'yaml':
+                if (function_exists('yaml_parse_file')) {
+                    $config = yaml_parse_file($file);
+                }
+                break;
+            case 'ini':
+                $config = parse_ini_file($file, true, INI_SCANNER_TYPED) ?: [];
+                break;
+            case 'json':
+                $config = json_decode(file_get_contents($file), true);
+                break;
+        }
 
         return is_array($config) ? $this->set($config, strtolower($name)) : [];
     }
@@ -100,7 +116,7 @@ class Config
      */
     public function has(string $name): bool
     {
-        if (!str_contains($name, '.') && !isset($this->config[strtolower($name)])) {
+        if (str_contains($name, '.') && !isset($this->config[strtolower($name)])) {
             return false;
         }
 
@@ -115,18 +131,9 @@ class Config
      */
     protected function pull(string $name): array
     {
-        return $this->config[$name] ?? [];
-    }
+        $name = strtolower($name);
 
-    /**
-     * 注册配置获取器
-     * @access public
-     * @param  Closure $callback
-     * @return void
-     */
-    public function hook(Closure $callback)
-    {
-        $this->hook = $callback;
+        return $this->config[$name] ?? [];
     }
 
     /**
@@ -136,7 +143,7 @@ class Config
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    public function get(?string $name = null, $default = null)
+    public function get(string $name = null, $default = null)
     {
         // 无参数时获取所有
         if (empty($name)) {
@@ -144,42 +151,23 @@ class Config
         }
 
         if (!str_contains($name, '.')) {
-            $name   = strtolower($name);
-            $result = $this->pull($name);
-            return $this->hook ? $this->lazy($name, $result, []) : $result;
+            return $this->pull($name);
         }
 
-        $item    = explode('.', $name);
-        $item[0] = strtolower($item[0]);
+        $name    = explode('.', $name);
+        $name[0] = strtolower($name[0]);
         $config  = $this->config;
 
-        foreach ($item as $val) {
+        // 按.拆分成多维数组进行判断
+        foreach ($name as $val) {
             if (isset($config[$val])) {
                 $config = $config[$val];
             } else {
-                return $this->hook ? $this->lazy($name, null, $default) : $default;
+                return $default;
             }
         }
 
-        return $this->hook ? $this->lazy($name, $config, $default) : $config;
-    }
-
-    /**
-     * 通过获取器加载配置
-     * @access public
-     * @param  string  $name 配置参数
-     * @param  mixed   $value 配置值
-     * @param  mixed   $default 默认值
-     * @return mixed
-     */
-    protected function lazy(?string $name, $value = null, $default = null)
-    {
-        // 通过获取器返回
-        $result = call_user_func_array($this->hook, [$name, $value]);
-        if (is_null($result)) {
-            return $default;
-        }
-        return $result;
+        return $config;
     }
 
     /**
@@ -189,21 +177,21 @@ class Config
      * @param  string $name 配置名
      * @return array
      */
-    public function set(array $config, ?string $name = null): array
+    public function set(array $config, string $name = null): array
     {
-        if (empty($name)) {
-            $this->config = array_merge($this->config, array_change_key_case($config));
-            return $this->config;
-        }
+        if (!empty($name)) {
+            if (isset($this->config[$name])) {
+                $result = array_merge($this->config[$name], $config);
+            } else {
+                $result = $config;
+            }
 
-        if (isset($this->config[$name])) {
-            $result = array_merge($this->config[$name], $config);
+            $this->config[$name] = $result;
         } else {
-            $result = $config;
+            $result = $this->config = array_merge($this->config, array_change_key_case($config));
         }
-
-        $this->config[$name] = $result;
 
         return $result;
     }
+
 }

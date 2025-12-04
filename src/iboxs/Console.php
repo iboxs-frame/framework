@@ -1,8 +1,8 @@
 <?php
 // +----------------------------------------------------------------------
-// | TopThink [ WE CAN DO IT JUST THINK IT ]
+// | iboxs [ WE CAN DO IT JUST iboxs IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://www.topthink.com All rights reserved.
+// | Copyright (c) 2015 http://www.iboxs.com All rights reserved.
 // +----------------------------------------------------------------------
 // | Author: zhangyajun <448901948@qq.com>
 // +----------------------------------------------------------------------
@@ -27,7 +27,6 @@ use iboxs\console\command\make\Model;
 use iboxs\console\command\make\Service;
 use iboxs\console\command\make\Subscribe;
 use iboxs\console\command\make\Validate;
-use iboxs\console\command\optimize\Config;
 use iboxs\console\command\optimize\Route;
 use iboxs\console\command\optimize\Schema;
 use iboxs\console\command\RouteList;
@@ -47,6 +46,9 @@ use iboxs\console\output\driver\Buffer;
  */
 class Console
 {
+
+    protected $app;
+
     /** @var Command[] */
     protected $commands = [];
 
@@ -70,7 +72,6 @@ class Console
         'make:listener'    => Listener::class,
         'make:service'     => Service::class,
         'make:subscribe'   => Subscribe::class,
-        'optimize:config'  => Config::class,
         'optimize:route'   => Route::class,
         'optimize:schema'  => Schema::class,
         'run'              => RunServer::class,
@@ -86,8 +87,10 @@ class Console
      */
     protected static $startCallbacks = [];
 
-    public function __construct(protected App $app)
+    public function __construct(App $app)
     {
+        $this->app = $app;
+
         $this->initialize();
 
         $this->definition = $this->getDefaultInputDefinition();
@@ -95,19 +98,13 @@ class Console
         //加载指令
         $this->loadCommands();
 
-        // 设置执行用户
-        $user = $this->app->config->get('console.user');
-        if (!empty($user)) {
-            $this->setUser($user);
-        }
-
         $this->start();
     }
 
     /**
      * 初始化
      */
-    protected function initialize():void
+    protected function initialize()
     {
         if (!$this->app->initialized()) {
             $this->app->initialize();
@@ -118,7 +115,7 @@ class Console
     /**
      * 构造request
      */
-    protected function makeRequest():void
+    protected function makeRequest()
     {
         $url = $this->app->config->get('app.url', 'http://localhost');
 
@@ -404,7 +401,7 @@ class Console
      * @param string $name 指令名 留空则自动获取
      * @return Command|void
      */
-    public function addCommand(string|Command $command, string $name = '')
+    public function addCommand($command, string $name = '')
     {
         if ($name) {
             $this->commands[$name] = $command;
@@ -425,7 +422,7 @@ class Console
         $command->setApp($this->app);
 
         if (null === $command->getDefinition()) {
-            throw new LogicException(sprintf('Command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', $command::class));
+            throw new LogicException(sprintf('Command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', get_class($command)));
         }
 
         $this->commands[$command->getName()] = $command;
@@ -598,7 +595,7 @@ class Console
      * @return Command[]
      * @api
      */
-    public function all(?string $namespace = null): array
+    public function all(string $namespace = null): array
     {
         if (null === $namespace) {
             return $this->commands;
@@ -720,7 +717,7 @@ class Console
      * @param array|\Traversable $collection
      * @return array
      */
-    private function findAlternatives(string $name, array|\Traversable $collection): array
+    private function findAlternatives(string $name, $collection): array
     {
         $threshold    = 1e3;
         $alternatives = [];

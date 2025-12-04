@@ -1,12 +1,12 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
@@ -14,7 +14,6 @@ namespace iboxs;
 
 use ReflectionClass;
 use ReflectionMethod;
-use iboxs\helper\Str;
 
 /**
  * 事件管理类
@@ -27,12 +26,6 @@ class Event
      * @var array
      */
     protected $listener = [];
-
-    /**
-     * 观察者
-     * @var array
-     */
-    protected $observer = [];
 
     /**
      * 事件别名
@@ -151,9 +144,9 @@ class Event
      */
     public function subscribe($subscriber)
     {
-        $subscribers = is_object($subscriber) ? [$subscriber] : (array) $subscriber;
+        $subscribers = (array) $subscriber;
 
-        foreach ($subscribers as $name => $subscriber) {
+        foreach ($subscribers as $subscriber) {
             if (is_string($subscriber)) {
                 $subscriber = $this->app->make($subscriber);
             }
@@ -161,9 +154,6 @@ class Event
             if (method_exists($subscriber, 'subscribe')) {
                 // 手动订阅
                 $subscriber->subscribe($this);
-            } elseif (!is_numeric($name)) {
-                // 注册观察者
-                $this->observer[$name] = $subscriber;
             } else {
                 // 智能订阅
                 $this->observe($subscriber);
@@ -174,7 +164,7 @@ class Event
     }
 
     /**
-     * 自动注册事件监听
+     * 自动注册事件观察者
      * @access public
      * @param string|object $observer 观察者
      * @param null|string   $prefix   事件名前缀
@@ -217,7 +207,7 @@ class Event
     {
         if (is_object($event)) {
             $params = $event;
-            $event  = $event::class;
+            $event  = get_class($event);
         }
 
         if (isset($this->bind[$event])) {
@@ -228,19 +218,9 @@ class Event
         $listeners = $this->listener[$event] ?? [];
 
         if (str_contains($event, '.')) {
-            [$prefix, $name] = explode('.', $event, 2);
-            if (isset($this->observer[$prefix])) {
-                // 检查观察者事件响应方法
-                $observer = $this->observer[$prefix];
-                $method   = 'on' . Str::studly($name);
-                if (method_exists($observer, $method)) {
-                    return $this->dispatch([$observer, $method], $params);
-                }
-            }
-
-            $name = substr($event, 0, strrpos($event, '.'));
-            if (isset($this->listener[$name . '.*'])) {
-                $listeners = array_merge($listeners, $this->listener[$name . '.*']);
+            [$prefix, $event] = explode('.', $event, 2);
+            if (isset($this->listener[$prefix . '.*'])) {
+                $listeners = array_merge($listeners, $this->listener[$prefix . '.*']);
             }
         }
 
@@ -288,4 +268,5 @@ class Event
 
         return $this->app->invoke($call, [$params]);
     }
+
 }

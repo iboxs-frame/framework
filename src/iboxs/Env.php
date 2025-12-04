@@ -1,14 +1,14 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// | iboxsPHP [ WE CAN DO IT JUST iboxs ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2025 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2023 http://lyweb.com.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: itlattice <notice@itgz8.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace iboxs;
 
@@ -61,7 +61,7 @@ class Env implements ArrayAccess
      * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get(?string $name = null, $default = null)
+    public function get(string $name = null, $default = null)
     {
         if (is_null($name)) {
             return $this->data;
@@ -89,8 +89,10 @@ class Env implements ArrayAccess
             return $default;
         }
 
-        if (isset($this->convert[$result])) {
-            $result = $this->convert[$result];
+        if ('false' === $result) {
+            $result = false;
+        } elseif ('true' === $result) {
+            $result = true;
         }
 
         if (!isset($this->data[$name])) {
@@ -115,11 +117,7 @@ class Env implements ArrayAccess
             foreach ($env as $key => $val) {
                 if (is_array($val)) {
                     foreach ($val as $k => $v) {
-                        if (is_string($k)) {
-                            $this->data[$key . '_' . strtoupper($k)] = $v;
-                        } else {
-                            $this->data[$key][$k] = $v;
-                        }
+                        $this->data[$key . '_' . strtoupper($k)] = $v;
                     }
                 } else {
                     $this->data[$key] = $val;
@@ -177,22 +175,26 @@ class Env implements ArrayAccess
     }
 
     // ArrayAccess
-    public function offsetSet(mixed $name, mixed $value): void
+    #[\ReturnTypeWillChange]
+    public function offsetSet($name, $value): void
     {
         $this->set($name, $value);
     }
 
-    public function offsetExists(mixed $name): bool
+    #[\ReturnTypeWillChange]
+    public function offsetExists($name): bool
     {
         return $this->__isset($name);
     }
 
-    public function offsetUnset(mixed $name): void
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($name): void
     {
         throw new Exception('not support: unset');
     }
 
-    public function offsetGet(mixed $name): mixed
+    #[\ReturnTypeWillChange]
+    public function offsetGet($name)
     {
         return $this->get($name);
     }
